@@ -22,8 +22,12 @@ export default function App() {
 
   useEffect(() => {
     async function initApp() {
-      await signInAnonymously(auth);
-      await seedSongs();
+      try {
+        await signInAnonymously(auth);
+        await seedSongs();
+      } catch (error) {
+        console.error("Failed to initialize app:", error);
+      }
     }
     initApp();
   }, []);
