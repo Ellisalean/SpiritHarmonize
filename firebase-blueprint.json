@@ -1,0 +1,23 @@
+{
+  "entities": {
+    "song": {
+      "title": "Song",
+      "description": "Represents a piece of sheet music with chords.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the song." },
+        "title": { "type": "string", "description": "Title of the song." },
+        "artist": { "type": "string", "description": "Artist or group associated with the song." },
+        "pdfUrl": { "type": "string", "description": "Optional URL to sheet music PDF." },
+        "chords": { "type": "string", "description": "The lyrics and chord progressions." }
+      },
+      "required": ["id", "title", "artist", "chords"]
+    }
+  },
+  "firestore": {
+    "/songs/{songId}": {
+      "schema": { "$ref": "song" },
+      "description": "Collection of available songs."
+    }
+  }
+}
