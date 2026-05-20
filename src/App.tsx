@@ -24,8 +24,8 @@ export default function App() {
   useEffect(() => {
     console.log("App initializing with auth...", auth.currentUser ? "User exists" : "No user");
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log("Auth state changed:", user ? "Signed in" : "Not signed in");
       if (user) {
-        console.log("Auth state: Signed in as", user.uid);
         if (!isInitialized) {
           try {
             console.log("Starting song seeding...");
@@ -37,13 +37,8 @@ export default function App() {
           setIsInitialized(true);
         }
       } else {
-        console.log("Auth state: Signing in anonymously...");
-        try {
-          await signInAnonymously(auth);
-        } catch (error) {
-          console.error("Failed to sign in anonymously:", error);
-          setIsInitialized(true); 
-        }
+          // Instead of signing in, just initialize without user if auth fails
+          setIsInitialized(true);
       }
     });
     return () => unsubscribe();
