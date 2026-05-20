@@ -13,7 +13,7 @@ import ChordChartViewer from './components/ChordChartViewer';
 import { Song } from './lib/db';
 import { seedSongs } from './lib/seed';
 import { auth } from './lib/firebase';
-import { signInAnonymously } from 'firebase/auth';
+import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 
 export default function App() {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -22,18 +22,29 @@ export default function App() {
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
 
   useEffect(() => {
-    async function initApp() {
-      try {
-        await signInAnonymously(auth);
-        await seedSongs();
-        setIsInitialized(true);
-      } catch (error) {
-        console.error("Failed to initialize app:", error);
-        setIsInitialized(true);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Already signed in
+        if (!isInitialized) {
+          try {
+            await seedSongs();
+          } catch (error) {
+            console.error("Failed to seed songs:", error);
+          }
+          setIsInitialized(true);
+        }
+      } else {
+        // Not signed in, sign in anonymously
+        try {
+          await signInAnonymously(auth);
+        } catch (error) {
+          console.error("Failed to sign in anonymously:", error);
+          setIsInitialized(true); // Allow to proceed even if auth fails, though Firestore will likely fail then
+        }
       }
-    }
-    initApp();
-  }, []);
+    });
+    return () => unsubscribe();
+  }, [isInitialized]);
 
   const menuItems = [
     { title: 'Sheet Music', icon: FileText, color: 'text-blue-600', action: () => setCurrentView('sheetMusic') },
