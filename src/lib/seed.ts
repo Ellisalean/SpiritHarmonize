@@ -22,12 +22,21 @@ const initialSongs = [
 ];
 
 export async function seedSongs() {
-  const existingSongs = await getSongs();
-  const existingTitles = new Set(existingSongs.map(s => s.title));
+  try {
+    console.log("Checking existing songs...");
+    const existingSongs = await getSongs();
+    console.log("Found", existingSongs.length, "songs.");
+    const existingTitles = new Set(existingSongs.map(s => s.title));
   
-  for (const song of initialSongs) {
-    if (!existingTitles.has(song.title)) {
-      await addSong(song, crypto.randomUUID());
+    for (const song of initialSongs) {
+      if (!existingTitles.has(song.title)) {
+        console.log("Adding song:", song.title);
+        await addSong(song, crypto.randomUUID());
+        console.log("Added song:", song.title);
+      }
     }
+  } catch (error) {
+    console.error("Error in seedSongs:", error);
+    throw error;
   }
 }

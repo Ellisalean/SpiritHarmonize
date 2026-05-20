@@ -22,24 +22,27 @@ export default function App() {
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
 
   useEffect(() => {
+    console.log("App initializing with auth...", auth.currentUser ? "User exists" : "No user");
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Already signed in
+        console.log("Auth state: Signed in as", user.uid);
         if (!isInitialized) {
           try {
+            console.log("Starting song seeding...");
             await seedSongs();
+            console.log("Song seeding complete.");
           } catch (error) {
             console.error("Failed to seed songs:", error);
           }
           setIsInitialized(true);
         }
       } else {
-        // Not signed in, sign in anonymously
+        console.log("Auth state: Signing in anonymously...");
         try {
           await signInAnonymously(auth);
         } catch (error) {
           console.error("Failed to sign in anonymously:", error);
-          setIsInitialized(true); // Allow to proceed even if auth fails, though Firestore will likely fail then
+          setIsInitialized(true); 
         }
       }
     });
@@ -89,7 +92,16 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-cyan-400 via-emerald-400 to-orange-300 text-gray-900 p-4 pb-24 font-sans">
       <header className="flex justify-between items-center mb-6 pt-4">
-        <h1 className="text-3xl font-bold tracking-tight">Main Menu</h1>
+        <div className="flex items-center gap-2">
+            {currentView !== 'menu' && (
+                <button onClick={() => setCurrentView('menu')} className="p-3 bg-white rounded-full shadow-md border hover:bg-gray-50 transition-colors">
+                    ← Back
+                </button>
+            )}
+            <h1 className="text-3xl font-bold tracking-tight">
+                {currentView === 'menu' ? 'Main Menu' : currentView === 'sheetMusic' ? 'Sheet Music' : selectedSong?.title || 'Details'}
+            </h1>
+        </div>
         <button className="p-2 bg-black/5 rounded-full hover:bg-black/10 transition-colors">
           <Bell size={20} />
         </button>
