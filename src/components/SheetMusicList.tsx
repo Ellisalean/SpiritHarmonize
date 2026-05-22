@@ -18,13 +18,14 @@ export default function SheetMusicList({ onSongClick }: SheetMusicListProps) {
   const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [newSong, setNewSong] = useState({ title: '', artist: '', chords: '' });
 
+  const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const unsubscribe = subscribeToSongs(setSongs);
-    const authUnsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log("Logged in user email:", user?.email);
-      setIsAdmin(user?.email === 'eliseortega20@gmail.com');
+    const authUnsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setIsAdmin(u?.email === 'eliseortega20@gmail.com');
     });
     return () => { unsubscribe(); authUnsubscribe(); };
   }, []);
@@ -75,9 +76,15 @@ export default function SheetMusicList({ onSongClick }: SheetMusicListProps) {
       <div className="flex justify-between items-center mb-6 mt-4">
         <h1 className="text-3xl font-bold tracking-tight">Sheet Music Menu</h1>
         {isAdmin && (
-          <button onClick={() => setShowAddForm(true)} className="p-2 bg-blue-600 text-white rounded-full">
-            <Plus size={24} />
-          </button>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-blue-600 font-medium">Admin Mode</span>
+            <button onClick={() => setShowAddForm(true)} className="p-2 bg-blue-600 text-white rounded-full">
+              <Plus size={24} />
+            </button>
+          </div>
+        )}
+        {!isAdmin && user && (
+          <span className="text-xs text-gray-400">Logged in as: {user.email}</span>
         )}
       </div>
             {showAddForm && (
