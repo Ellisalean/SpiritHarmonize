@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Search, MoreHorizontal, Music, Heart, Plus, X, Trash2, Edit2 } from 'lucide-react';
+import { Search, MoreHorizontal, Music, Heart, Plus, X, Trash2, Edit2, LogIn } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { subscribeToSongs, Song, addSong, updateSong, deleteSong } from '../lib/db';
 import { auth } from '../lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 
 interface SheetMusicListProps {
   onSongClick: (song: Song) => void;
@@ -29,6 +29,15 @@ export default function SheetMusicList({ onSongClick }: SheetMusicListProps) {
     });
     return () => { unsubscribe(); authUnsubscribe(); };
   }, []);
+
+  const handleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+        await signInWithPopup(auth, provider);
+    } catch (error) {
+        console.error("Error logging in:", error);
+    }
+  };
 
   const handleSaveSong = async () => {
     if (newSong.title && newSong.artist) {
@@ -83,7 +92,15 @@ export default function SheetMusicList({ onSongClick }: SheetMusicListProps) {
             </button>
           </div>
         )}
-        <span className="text-xs text-gray-400">Logged in as: {user?.email || 'Not logged in'}</span>
+        <div className="flex items-center gap-2">
+            <span className="text-xs text-gray-400">
+                {user ? `Logged in as: ${user.email}` : (
+                    <button onClick={handleLogin} className="flex items-center gap-1 bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded-lg">
+                        <LogIn size={14} /> Log In
+                    </button>
+                )}
+            </span>
+        </div>
       </div>
             {showAddForm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
