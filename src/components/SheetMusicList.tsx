@@ -3,7 +3,7 @@ import { Search, MoreHorizontal, Music, Heart, Plus, X, Trash2, Edit2, LogIn } f
 import { motion, AnimatePresence } from 'motion/react';
 import { subscribeToSongs, Song, addSong, updateSong, deleteSong } from '../lib/db';
 import { auth } from '../lib/firebase';
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { onAuthStateChanged, signInWithRedirect, GoogleAuthProvider } from 'firebase/auth';
 
 interface SheetMusicListProps {
   onSongClick: (song: Song) => void;
@@ -33,7 +33,7 @@ export default function SheetMusicList({ onSongClick }: SheetMusicListProps) {
   const handleLogin = async () => {
     const provider = new GoogleAuthProvider();
     try {
-        await signInWithPopup(auth, provider);
+        await signInWithRedirect(auth, provider);
     } catch (error) {
         console.error("Error logging in:", error);
     }
