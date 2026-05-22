@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Search, MoreHorizontal, Music, Heart, Plus, X } from 'lucide-react';
+import { Search, MoreHorizontal, Music, Heart, Plus, X, Trash2, Edit2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { subscribeToSongs, Song, addSong } from '../lib/db';
+import { subscribeToSongs, Song, addSong, updateSong, deleteSong } from '../lib/db';
 import { auth } from '../lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -15,6 +15,7 @@ export default function SheetMusicList({ onSongClick }: SheetMusicListProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingSong, setEditingSong] = useState<Song | null>(null);
   const [newSong, setNewSong] = useState({ title: '', artist: '', chords: '' });
 
   const [isAdmin, setIsAdmin] = useState(false);
@@ -22,16 +23,36 @@ export default function SheetMusicList({ onSongClick }: SheetMusicListProps) {
   useEffect(() => {
     const unsubscribe = subscribeToSongs(setSongs);
     const authUnsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log("Logged in user email:", user?.email);
       setIsAdmin(user?.email === 'eliseortega20@gmail.com');
     });
     return () => { unsubscribe(); authUnsubscribe(); };
   }, []);
 
-  const handleAddSong = async () => {
+  const handleSaveSong = async () => {
     if (newSong.title && newSong.artist) {
-      await addSong({ ...newSong }, crypto.randomUUID());
+      if (editingSong) {
+        await updateSong(editingSong.id, newSong);
+      } else {
+        await addSong({ ...newSong }, crypto.randomUUID());
+      }
       setNewSong({ title: '', artist: '', chords: '' });
+      setEditingSong(null);
       setShowAddForm(false);
+    }
+  };
+
+  const handleEditSong = (e: React.MouseEvent, song: Song) => {
+    e.stopPropagation();
+    setEditingSong(song);
+    setNewSong({ title: song.title, artist: song.artist, chords: song.chords });
+    setShowAddForm(true);
+  };
+
+  const handleDeleteSong = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    if (confirm("Are you sure you want to delete this song?")) {
+      await deleteSong(id);
     }
   };
 
@@ -59,13 +80,12 @@ export default function SheetMusicList({ onSongClick }: SheetMusicListProps) {
           </button>
         )}
       </div>
-      
-      {showAddForm && (
+            {showAddForm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">Add New Song</h2>
-              <button onClick={() => setShowAddForm(false)}><X size={24} /></button>
+              <h2 className="text-xl font-bold">{editingSong ? 'Edit Song' : 'Add New Song'}</h2>
+              <button onClick={() => { setShowAddForm(false); setEditingSong(null); setNewSong({ title: '', artist: '', chords: '' }); }}><X size={24} /></button>
             </div>
             <input 
               placeholder="Title"
@@ -85,8 +105,8 @@ export default function SheetMusicList({ onSongClick }: SheetMusicListProps) {
               value={newSong.chords}
               onChange={e => setNewSong({...newSong, chords: e.target.value})}
             />
-            <button onClick={handleAddSong} className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold">
-              Save Song
+            <button onClick={handleSaveSong} className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold">
+              {editingSong ? 'Save Changes' : 'Save Song'}
             </button>
           </div>
         </div>
@@ -133,6 +153,16 @@ export default function SheetMusicList({ onSongClick }: SheetMusicListProps) {
             <button onClick={(e) => toggleFavorite(e, song.id)} className="mr-2">
               <Heart size={20} className={favorites.includes(song.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'} />
             </button>
+            {isAdmin && (
+                <>
+                  <button onClick={(e) => handleEditSong(e, song)} className="text-gray-400 hover:text-blue-500 mr-2">
+                      <Edit2 size={20} />
+                  </button>
+                  <button onClick={(e) => handleDeleteSong(e, song.id)} className="text-gray-400 hover:text-red-500 mr-2">
+                      <Trash2 size={20} />
+                  </button>
+                </>
+            )}
             <button className="text-gray-400"><MoreHorizontal /></button>
           </motion.div>
         ))}

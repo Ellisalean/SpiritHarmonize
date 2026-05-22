@@ -8,26 +8,43 @@ interface ChordChartViewerProps {
   onBack: () => void;
 }
 
-const CHORD_ORDER = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+const resolveToSharp = (note: string) => {
+    switch (note) {
+        case 'Db': return 'C#';
+        case 'Eb': return 'D#';
+        case 'Gb': return 'F#';
+        case 'Ab': return 'G#';
+        case 'Bb': return 'A#';
+        default: return note;
+    }
+}
 
 const transposeChord = (chord: string, steps: number): string => {
-  const index = CHORD_ORDER.indexOf(chord);
-  if (index === -1) return chord;
-  return CHORD_ORDER[(index + steps + 12) % 12];
+    const match = chord.match(/^([A-G][b#]?)/);
+    if (!match) return chord;
+    
+    const root = resolveToSharp(match[1]);
+    const rest = chord.slice(match[1].length);
+    
+    const index = NOTES.indexOf(root);
+    if (index === -1) return chord;
+    
+    const newIndex = (index + steps + 12) % 12;
+    return NOTES[newIndex] + rest;
 };
 
 export default function ChordChartViewer({ title, artist, initialChords, onBack }: ChordChartViewerProps) {
   const [transposition, setTransposition] = useState(0);
 
-  // Improved regex to find [Chord] supporting complex chords like [D/A], [E/G#], etc.
   const renderChords = () => {
     const parts = initialChords.split(/(\[[A-G][b#]?[a-z0-9/]*\])/g);
     return parts.map((part, index) => {
       if (part.startsWith('[') && part.endsWith(']')) {
-        // We might not be able to transpose complex chords easily, so just display them.
-        // For simplicity, for now we will just display the chord as is, but styled.
         const chord = part.slice(1, -1);
-        return <span key={index} className="font-bold text-blue-600 bg-blue-50 px-1 rounded">{chord}</span>;
+        const transposedChord = transposeChord(chord, transposition);
+        return <span key={index} className="font-bold text-blue-600 bg-blue-50 px-1 rounded">{transposedChord}</span>;
       }
       return part;
     });
@@ -45,10 +62,11 @@ export default function ChordChartViewer({ title, artist, initialChords, onBack 
                 <p className="text-sm text-gray-500">{artist}</p>
             </div>
         </div>
-        <div className="flex gap-2">
-            <button onClick={() => setTransposition(t => t - 1)} className="p-2 bg-gray-100 rounded-lg"><Minus size={20} /></button>
-            <span className="font-mono font-bold self-center w-8 text-center">{transposition > 0 ? '+' : ''}{transposition}</span>
-            <button onClick={() => setTransposition(t => t + 1)} className="p-2 bg-gray-100 rounded-lg"><Plus size={20} /></button>
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            <span className="text-xs sm:text-sm font-medium text-gray-500">Transpose:</span>
+            <button onClick={() => setTransposition(t => t - 1)} className="p-1 sm:p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition"><Minus size={16} /></button>
+            <span className="font-mono font-bold w-8 sm:w-10 text-center text-blue-800 tabular-nums">{transposition > 0 ? '+' : ''}{transposition}</span>
+            <button onClick={() => setTransposition(t => t + 1)} className="p-1 sm:p-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition"><Plus size={16} /></button>
         </div>
       </header>
       <div className="flex-1 p-6 overflow-y-auto whitespace-pre-wrap font-mono text-lg leading-loose">
