@@ -25,7 +25,7 @@ export default function SheetMusicList({ onSongClick }: SheetMusicListProps) {
     const unsubscribe = subscribeToSongs(setSongs);
     const authUnsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
-      setIsAdmin(u?.email === 'eliseortega20@gmail.com');
+      setIsAdmin(u?.email?.toLowerCase() === 'eliseortega20@gmail.com');
     });
     return () => { unsubscribe(); authUnsubscribe(); };
   }, []);
@@ -83,9 +83,7 @@ export default function SheetMusicList({ onSongClick }: SheetMusicListProps) {
             </button>
           </div>
         )}
-        {!isAdmin && user && (
-          <span className="text-xs text-gray-400">Logged in as: {user.email}</span>
-        )}
+        <span className="text-xs text-gray-400">Logged in as: {user?.email || 'Not logged in'}</span>
       </div>
             {showAddForm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
