@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import ReactPlayer from 'react-player';
 import { songs, Song } from '../lib/songs';
 import { ChevronLeft, ChevronRight, Music, Play, Pause, X } from 'lucide-react';
 
@@ -58,16 +57,13 @@ export default function MusicPlayer({ onBack }: { onBack: () => void }) {
                             </button>
                         </div>
                         <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black">
-                            <ReactPlayer 
-                                url={selectedSong.youtubeUrl} 
-                                width="100%"
-                                height="100%"
-                                controls={true}
-                                config={{
-                                    youtube: {
-                                        playerVars: { origin: window.location.origin }
-                                    }
-                                }}
+                        <iframe
+                                className="w-full h-full"
+                                src={`https://www.youtube.com/embed/${selectedSong.youtubeUrl.split('v=')[1]}`}
+                                title="YouTube video player"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowFullScreen
                             />
                         </div>
                     </div>
