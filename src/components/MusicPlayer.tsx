@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import ReactPlayer from 'react-player';
 import { songs, Song } from '../lib/songs';
-import { ChevronLeft, ChevronRight, Music, Play, Pause } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Music, Play, Pause, X } from 'lucide-react';
 
 export default function MusicPlayer({ onBack }: { onBack: () => void }) {
     const [selectedSong, setSelectedSong] = useState<Song>(songs[0]);
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
     return (
         <div className="flex flex-col h-full bg-slate-50">
@@ -23,18 +23,6 @@ export default function MusicPlayer({ onBack }: { onBack: () => void }) {
                 </div>
             </header>
 
-            <div className="px-6 -mt-16">
-                 <div className="aspect-video w-full max-w-sm mx-auto rounded-3xl overflow-hidden shadow-lg border-4 border-white bg-black">
-                    <ReactPlayer 
-                        key={selectedSong.id}
-                        url={selectedSong.youtubeUrl} 
-                        width="100%"
-                        height="100%"
-                        controls={true}
-                    />
-                 </div>
-            </div>
-
             <div className="flex-1 overflow-y-auto px-6 pt-6">
                 <h3 className="font-extrabold text-slate-800 mb-4 tracking-tight">Repertorio</h3>
                 <div className="space-y-4 pb-12">
@@ -42,17 +30,13 @@ export default function MusicPlayer({ onBack }: { onBack: () => void }) {
                         <button 
                             key={song.id}
                             onClick={() => {
-                                if (selectedSong.id === song.id) {
-                                    setIsPlaying(!isPlaying);
-                                } else {
-                                    setSelectedSong(song);
-                                    setIsPlaying(true);
-                                }
+                                setSelectedSong(song);
+                                setShowModal(true);
                             }}
-                            className={`w-full flex items-center gap-4 p-4 rounded-3xl border transition shadow-sm ${selectedSong.id === song.id ? 'bg-white border-indigo-200' : 'bg-white border-transparent hover:border-indigo-100'}`}
+                            className="w-full flex items-center gap-4 p-4 rounded-3xl border transition shadow-sm bg-white border-transparent hover:border-indigo-100"
                         >
                             <div className="p-3 bg-indigo-50 rounded-2xl">
-                                {selectedSong.id === song.id && isPlaying ? <Pause size={20} className="text-indigo-600" /> : <Play size={20} className="text-indigo-600" />}
+                                <Play size={20} className="text-indigo-600" />
                             </div>
                             <div className="flex-1 text-left">
                                 <div className="font-bold text-slate-900">{song.title}</div>
@@ -63,6 +47,32 @@ export default function MusicPlayer({ onBack }: { onBack: () => void }) {
                     ))}
                 </div>
             </div>
+
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+                    <div className="w-full max-w-sm bg-white rounded-3xl p-4 shadow-2xl flex flex-col">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="font-bold text-lg">{selectedSong.title}</h2>
+                            <button onClick={() => setShowModal(false)} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="aspect-video w-full rounded-2xl overflow-hidden bg-black">
+                            <ReactPlayer 
+                                url={selectedSong.youtubeUrl} 
+                                width="100%"
+                                height="100%"
+                                controls={true}
+                                config={{
+                                    youtube: {
+                                        playerVars: { origin: window.location.origin }
+                                    }
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
