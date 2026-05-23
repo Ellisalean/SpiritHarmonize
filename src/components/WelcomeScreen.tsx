@@ -17,10 +17,21 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
         style={{ backgroundSize: '300% 300%' }}
       />
 
-      <div className="relative z-10 pt-16">
-        <h1 className="text-5xl font-extrabold tracking-tight leading-tight">
-          Welcome,<br />Musician!
-        </h1>
+      <div className="relative z-10 flex flex-col items-center justify-center flex-grow">
+        <motion.h1 
+          className="text-7xl font-extrabold tracking-tight leading-tight"
+          animate={{ 
+            scale: [1, 1.05, 1],
+            filter: [
+                "drop-shadow(0 0 5px rgba(255, 255, 255, 0.3))",
+                "drop-shadow(0 0 15px rgba(255, 255, 255, 0.6))",
+                "drop-shadow(0 0 5px rgba(255, 255, 255, 0.3))"
+            ]
+          }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        >
+          SONUS
+        </motion.h1>
       </div>
 
       <button 

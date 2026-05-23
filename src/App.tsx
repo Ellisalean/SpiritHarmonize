@@ -14,12 +14,15 @@ import ChordChartViewer from './components/ChordChartViewer';
 import TunerTools from './components/TunerTools';
 import Announcements from './components/Announcements';
 import CalendarView from './components/Calendar';
+import Devotionals from './components/Devotionals';
+import SplashScreen from './components/SplashScreen';
 import { Song, Setlist, getSongs } from './lib/db';
 import { resetSongs } from './lib/seed';
 import { auth } from './lib/firebase';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
   const [showWelcome, setShowWelcome] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
   const [currentView, setCurrentView] = useState('menu');
@@ -53,11 +56,15 @@ export default function App() {
     { title: 'Tuner & Tools', icon: Mic, color: 'text-teal-500', action: () => setCurrentView('tuner') },
     { title: 'Announcements', icon: Megaphone, color: 'text-red-500', action: () => setCurrentView('announcements') },
     { title: 'Calendar', icon: CalendarDays, color: 'text-purple-600', action: () => setCurrentView('calendar') },
-    { title: 'Devotionals', icon: BookOpen, color: 'text-indigo-600' },
+    { title: 'Devotionals', icon: BookOpen, color: 'text-indigo-600', action: () => setCurrentView('devotionals') },
   ];
 
   if (!isInitialized) {
-      return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+      return <div className="min-h-screen bg-slate-900" />;
+  }
+  
+  if (showSplash) {
+      return <SplashScreen onFinish={() => setShowSplash(false)} />;
   }
 
   if (showWelcome) {
@@ -110,6 +117,10 @@ export default function App() {
     
     if (currentView === 'calendar') {
         return <CalendarView onBack={() => setCurrentView('menu')} />;
+    }
+    
+    if (currentView === 'devotionals') {
+        return <Devotionals onBack={() => setCurrentView('menu')} />;
     }
     // Main Menu
     return (
