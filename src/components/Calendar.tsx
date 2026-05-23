@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Trash2, Plus } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { db } from '../lib/firebase';
 import { collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
 
@@ -32,15 +33,26 @@ export default function Calendar({ onBack }: { onBack: () => void }) {
     }, []);
 
     const addEvent = async () => {
-        if (!newTitle) return;
-        const docRef = await addDoc(collection(db, 'events'), {
-            date: selectedDate,
-            title: newTitle,
-            time: '9:00 am - 10:00 am',
-            type: 'event'
-        });
-        setEvents([...events, { id: docRef.id, date: selectedDate, title: newTitle, time: '9:00 am - 10:00 am', type: 'event' }]);
-        setNewTitle('');
+        if (!newTitle) {
+            alert('Por favor, ingresa un título para el evento.');
+            return;
+        }
+        try {
+            console.log("Saving event:", newTitle, selectedDate);
+            const docRef = await addDoc(collection(db, 'events'), {
+                date: selectedDate,
+                title: newTitle,
+                time: '9:00 am - 10:00 am',
+                type: 'event'
+            });
+            console.log("Event saved with ID:", docRef.id);
+            setEvents([...events, { id: docRef.id, date: selectedDate, title: newTitle, time: '9:00 am - 10:00 am', type: 'event' }]);
+            setNewTitle('');
+            alert('Evento añadido correctamente.');
+        } catch (error) {
+            console.error("Error adding document: ", error);
+            alert('Hubo un error al guardar el evento. Inténtalo de nuevo.');
+        }
     };
 
     const deleteEvent = async (id: string) => {
@@ -63,7 +75,7 @@ export default function Calendar({ onBack }: { onBack: () => void }) {
                     <ArrowLeft size={20} />
                 </button>
                 <div className="flex justify-between items-center">
-                    <h2 className="text-3xl font-extrabold tracking-tight">Calendar</h2>
+                    <h2 className="text-3xl font-extrabold tracking-tight">Calendario</h2>
                     <CalendarIcon size={24} className="text-white/80" />
                 </div>
             </header>
@@ -71,12 +83,12 @@ export default function Calendar({ onBack }: { onBack: () => void }) {
             <div className="flex-grow p-4 -mt-4 bg-white rounded-t-[2rem] shadow-xl">
                 <div className="flex justify-between items-center mb-6 px-2">
                     <button onClick={prevMonth} className="p-2 hover:bg-slate-100 rounded-full"><ChevronLeft className="text-slate-600"/></button>
-                    <h3 className="font-bold text-lg text-slate-800">{format(currentDate, 'MMMM yyyy')}</h3>
+                    <h3 className="font-extrabold text-lg text-slate-800">{format(currentDate, 'MMMM yyyy', { locale: es })}</h3>
                     <button onClick={nextMonth} className="p-2 hover:bg-slate-100 rounded-full"><ChevronRight className="text-slate-600"/></button>
                 </div>
                 
                 <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2">
-                    {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => <div key={d} className="text-slate-400 font-medium pb-2">{d}</div>)}
+                    {['Do','Lu','Ma','Mi','Ju','Vi','Sá'].map(d => <div key={d} className="text-slate-400 font-bold pb-2">{d}</div>)}
                 </div>
 
                 <div className="grid grid-cols-7 gap-1">
@@ -104,15 +116,15 @@ export default function Calendar({ onBack }: { onBack: () => void }) {
                 </div>
 
                 <div className="mt-8 flex gap-4 text-xs font-semibold px-2">
-                    <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-teal-500"></span> Rehearsals</div>
-                    <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Events</div>
+                    <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-teal-500"></span> Ensayos</div>
+                    <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Eventos</div>
                 </div>
 
                 <div className="mt-4 flex gap-2 flex-col">
-                  <p className="text-sm text-slate-600 font-medium">Add event for {format(selectedDate, 'MMM d, yyyy')}</p>
+                  <p className="text-sm text-slate-600 font-bold">Añadir evento para {format(selectedDate, 'd MMM, yyyy', { locale: es })}</p>
                   <div className="flex gap-2">
-                    <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Add event title..." className="flex-grow p-2 border rounded-xl" />
-                    <button onClick={addEvent} className="px-4 py-2 bg-indigo-600 text-white rounded-xl">Add</button>
+                    <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Título del evento..." className="flex-grow p-2 border rounded-xl" />
+                    <button onClick={addEvent} className="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold">Añadir</button>
                   </div>
                 </div>
 
@@ -122,8 +134,8 @@ export default function Calendar({ onBack }: { onBack: () => void }) {
                             <div className="flex gap-4 items-center">
                                 <div className={`w-1 h-10 rounded ${e.type === 'rehearsal' ? 'bg-teal-500' : 'bg-rose-500'}`}></div>
                                 <div>
-                                    <h4 className="font-bold text-slate-800">{e.title}</h4>
-                                    <p className="text-xs text-slate-500 font-medium">{e.time} • {format(e.date, 'MMM d')}</p>
+                                    <h4 className="font-extrabold text-slate-800">{e.title}</h4>
+                                    <p className="text-xs text-slate-500 font-bold">{e.time} • {format(e.date, 'MMM d')}</p>
                                 </div>
                             </div>
                             <button onClick={() => deleteEvent(e.id)} className="text-rose-400 p-2"><Trash2 size={16} /></button>

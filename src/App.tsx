@@ -36,6 +36,7 @@ export default function App() {
       initialized.current = true;
       try {
         console.log("App initializing...");
+        await signInAnonymously(auth);
         const songs = await getSongs();
         if (songs.length === 0) {
             console.log("Database empty, seeding...");
@@ -51,12 +52,12 @@ export default function App() {
   }, []);
 
   const menuItems = [
-    { title: 'Sheet Music', icon: FileText, color: 'text-blue-600', action: () => setCurrentView('sheetMusic') },
+    { title: 'Partituras', icon: FileText, color: 'text-blue-600', action: () => setCurrentView('sheetMusic') },
     { title: 'Setlists', icon: BarChart2, color: 'text-orange-500', action: () => setCurrentView('setlistPlanner') },
-    { title: 'Tuner & Tools', icon: Mic, color: 'text-teal-500', action: () => setCurrentView('tuner') },
-    { title: 'Announcements', icon: Megaphone, color: 'text-red-500', action: () => setCurrentView('announcements') },
-    { title: 'Calendar', icon: CalendarDays, color: 'text-purple-600', action: () => setCurrentView('calendar') },
-    { title: 'Devotionals', icon: BookOpen, color: 'text-indigo-600', action: () => setCurrentView('devotionals') },
+    { title: 'Afinador y Tools', icon: Mic, color: 'text-teal-500', action: () => setCurrentView('tuner') },
+    { title: 'Anuncios', icon: Megaphone, color: 'text-red-500', action: () => setCurrentView('announcements') },
+    { title: 'Calendario', icon: CalendarDays, color: 'text-purple-600', action: () => setCurrentView('calendar') },
+    { title: 'Devocionales', icon: BookOpen, color: 'text-indigo-600', action: () => setCurrentView('devotionals') },
   ];
 
   if (!isInitialized) {
@@ -129,12 +130,12 @@ export default function App() {
           <Search className="absolute left-3 top-3 text-gray-400" size={20} />
           <input 
             type="text" 
-            placeholder="Search" 
+            placeholder="Buscar" 
             className="w-full pl-10 pr-4 py-3 bg-white rounded-2xl shadow-sm border border-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all" 
           />
         </div>
         
-        <button 
+        {/* <button 
             onClick={() => { 
                 if(confirm("¿Estás seguro de resetear la base de datos? Esto borrará todo y recargará la lista original.")) { 
                     resetSongs().then(() => window.location.reload());
@@ -142,8 +143,8 @@ export default function App() {
             }}
             className="w-full mb-4 p-3 bg-red-100 text-red-600 rounded-xl hover:bg-red-200 font-bold"
         >
-            Reset Database (Fix Duplicates)
-        </button>
+            Resetear Base de Datos
+        </button> */}
 
         <section className="grid grid-cols-2 gap-4 mb-8">
           {menuItems.map((item, index) => (
@@ -155,7 +156,7 @@ export default function App() {
               className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center gap-4 aspect-square"
             >
               <item.icon size={40} className={`${item.color}`} />
-              <span className="font-semibold text-sm">{item.title}</span>
+              <span className="font-extrabold text-sm">{item.title}</span>
             </motion.button>
           ))}
         </section>
@@ -169,12 +170,12 @@ export default function App() {
         <header className="flex justify-between items-center mb-6 pt-4">
           <div className="flex items-center gap-2">
               {currentView !== 'menu' && (
-                  <button onClick={() => setCurrentView('menu')} className="p-3 bg-white rounded-full shadow-md border hover:bg-gray-50 transition-colors">
-                      ← Back
+                  <button onClick={() => setCurrentView('menu')} className="p-3 bg-white rounded-full shadow-md border hover:bg-gray-50 transition-colors font-bold">
+                      ← Atrás
                   </button>
               )}
-              <h1 className="text-3xl font-bold tracking-tight">
-                  {currentView === 'menu' ? 'Main Menu' : 'Sheet Music'}
+              <h1 className={`text-5xl font-extrabold tracking-tight ${currentView === 'menu' ? 'font-logo' : ''}`}>
+                  {currentView === 'menu' ? 'SONUS' : 'Partituras'}
               </h1>
           </div>
           <button className="p-2 bg-black/5 rounded-full hover:bg-black/10 transition-colors">

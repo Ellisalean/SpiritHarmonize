@@ -49,19 +49,19 @@ export default function SetlistPlanner({ onBack, onSelectSetlist }: SetlistPlann
   return (
     <div className="p-4 bg-white h-full">
       <header className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Setlist Planner</h2>
-        <button onClick={onBack} className="text-gray-500">Close</button>
+        <h2 className="text-2xl font-bold">Planificador de Setlists</h2>
+        <button onClick={onBack} className="text-gray-500">Cerrar</button>
       </header>
 
       <div className="mb-8">
         <input 
           value={newSetlistName}
           onChange={(e) => setNewSetlistName(e.target.value)}
-          placeholder="New Setlist Name"
+          placeholder="Nombre del nuevo Setlist"
           className="w-full p-3 bg-gray-100 rounded-lg mb-2"
         />
         <button onClick={createSetlist} className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold flex items-center justify-center gap-2">
-            <Plus size={20} /> Create Setlist
+            <Plus size={20} /> Crear Setlist
         </button>
       </div>
 
@@ -71,11 +71,11 @@ export default function SetlistPlanner({ onBack, onSelectSetlist }: SetlistPlann
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold text-lg">{setlist.name}</h3>
               <div className="flex gap-2">
-                  <button onClick={(e) => { e.stopPropagation(); setEditingSetlist(setlist); }} className="text-blue-600 font-medium">Edit</button>
+                  <button onClick={(e) => { e.stopPropagation(); setEditingSetlist(setlist); }} className="text-blue-600 font-medium">Editar</button>
                   <button onClick={(e) => { e.stopPropagation(); deleteSetlistById(setlist.id); }} className="text-red-500"><Trash2 size={18} /></button>
               </div>
             </div>
-            <p className="text-sm text-gray-500 mb-2">{setlist.songIds.length} songs</p>
+            <p className="text-sm text-gray-500 mb-2">{setlist.songIds.length} canciones</p>
           </div>
         ))}
       </div>
@@ -89,7 +89,7 @@ export default function SetlistPlanner({ onBack, onSelectSetlist }: SetlistPlann
                 </header>
                 <div className="space-y-4">
                      <div>
-                        <h4 className="font-semibold text-sm text-gray-500 mb-2">Selected Songs (in order) - <span className="text-blue-600 font-bold">Auto-saving...</span></h4>
+                        <h4 className="font-semibold text-sm text-gray-500 mb-2">Canciones Seleccionadas (en orden) - <span className="text-blue-600 font-bold">Auto-guardando...</span></h4>
                         {editingSetlist.songIds.map(id => {
                             const song = songs.find(s => s.id === id);
                             if (!song) return null;
@@ -106,7 +106,7 @@ export default function SetlistPlanner({ onBack, onSelectSetlist }: SetlistPlann
                         })}
                     </div>
                     <div>
-                        <h4 className="font-semibold text-sm text-gray-500 mb-2">Available Songs</h4>
+                        <h4 className="font-semibold text-sm text-gray-500 mb-2">Canciones Disponibles</h4>
                         {songs.filter(s => !editingSetlist.songIds.includes(s.id)).map(song => (
                             <button 
                                 key={song.id}

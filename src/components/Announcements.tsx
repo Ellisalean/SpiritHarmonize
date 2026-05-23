@@ -9,9 +9,8 @@ interface Announcement {
 }
 
 const mockAnnouncements: Announcement[] = [
-    { id: '1', date: 'May 31, 2026', time: '3:00 PM', title: 'Rehearsal time changed', content: 'Rehearsal time changed, and access day rehearsal time changed.' },
-    { id: '2', date: 'Apr 31, 2026', time: '3:00 AM', title: 'Rehearsal time changed', content: 'Rehearsal time changed, and access day rehearsal time changed.' },
-    { id: '3', date: 'Sep 21, 2026', time: '2:00 PM', title: 'Rehearsal time changed', content: 'Rehearsal time changed, and access day rehearsal time changed.' },
+    { id: '1', date: 'May 24, 2026', time: '6:00 PM', title: 'Ensayo para el Domingo', content: 'Consulte el repertorio. Habrá la participación de algunos especiales por parte de hermanos. Por favor , Recuerde estar a tiempo' },
+
 ];
 
 export default function Announcements({ onBack }: { onBack: () => void }) {
