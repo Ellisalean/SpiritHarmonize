@@ -25,18 +25,22 @@ export default function MusicPlayer({ onBack }: { onBack: () => void }) {
 
             <div className="flex-1 overflow-y-auto pt-20 px-6">
                 <h3 className="font-extrabold text-slate-800 mb-4 tracking-tight">Repertorio</h3>
-                <div className="space-y-4 pb-20">
+                <div className="space-y-4 pb-24">
                     {songs.map(song => (
                         <button 
                             key={song.id}
                             onClick={() => {
-                                setSelectedSong(song);
-                                setIsPlaying(true);
+                                if (selectedSong.id === song.id) {
+                                    setIsPlaying(!isPlaying);
+                                } else {
+                                    setSelectedSong(song);
+                                    setIsPlaying(true);
+                                }
                             }}
                             className={`w-full flex items-center gap-4 p-4 rounded-3xl border transition shadow-sm ${selectedSong.id === song.id ? 'bg-white border-indigo-200' : 'bg-white border-transparent hover:border-indigo-100'}`}
                         >
                             <div className="p-3 bg-indigo-50 rounded-2xl">
-                                <Play size={20} className="text-indigo-600" />
+                                {selectedSong.id === song.id && isPlaying ? <Pause size={20} className="text-indigo-600" /> : <Play size={20} className="text-indigo-600" />}
                             </div>
                             <div className="flex-1 text-left">
                                 <div className="font-bold text-slate-900">{song.title}</div>
@@ -48,7 +52,26 @@ export default function MusicPlayer({ onBack }: { onBack: () => void }) {
                 </div>
             </div>
             
-            {/* Simple player overlay or integrated player would go here, omitting for now to stick strictly to the requested "layout emulation" */}
+            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 shadow-2xl flex items-center gap-4 z-10">
+                <div className="flex-1">
+                    <div className="font-bold text-slate-900 truncate">{selectedSong.title}</div>
+                    <div className="text-xs text-slate-500 font-medium truncate">{selectedSong.artist}</div>
+                </div>
+                <button 
+                    onClick={() => setIsPlaying(!isPlaying)}
+                    className="p-4 bg-indigo-600 text-white rounded-full shadow-lg"
+                >
+                    {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+                </button>
+                <div className="hidden">
+                    <ReactPlayer 
+                        url={selectedSong.youtubeUrl} 
+                        playing={isPlaying}
+                        width="0"
+                        height="0"
+                    />
+                </div>
+            </div>
         </div>
     );
 }
