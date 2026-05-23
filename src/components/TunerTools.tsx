@@ -75,16 +75,25 @@ export default function TunerTools({ onBack }: { onBack: () => void }) {
       </header>
       
       <div className="flex-grow flex flex-col items-center justify-center gap-12">
-        {/* Needle-style Meter Visualization */}
-        <div className="w-full relative h-40 bg-slate-900 rounded-3xl p-6 border border-slate-800 flex flex-col items-center overflow-hidden">
-            <div className="text-4xl text-slate-500 font-bold mb-4">{note}</div>
+        {/* Needle-style Meter Visualization: Pro-grade gradient meter */}
+        <div className="w-full relative h-32 bg-slate-900 rounded-2xl p-6 border border-slate-800 flex flex-col items-center shadow-inner">
+            <div className="text-4xl text-white font-mono font-bold mb-4">{note}</div>
             
-            <div className="relative w-full h-8 flex items-center">
-                <div className="w-full h-1 bg-slate-700 rounded-full"></div>
+            <div className="relative w-full h-4 flex items-center">
+                {/* Gradient scale */}
+                <div className="w-full h-3 rounded-full bg-gradient-to-r from-red-500 via-emerald-500 to-red-500 opacity-60"></div>                
+                {/* Center marker */}
+                <div className="absolute left-1/2 h-6 w-0.5 bg-white opacity-40"></div>
+                {/* Moving needle */}
                 <div 
-                    className="absolute h-12 w-1 bg-white shadow-[0_0_10px_white] transition-all duration-100 ease-out"
-                    style={{ left: `${50 + (cents / 100) * 45}%` }}
+                    className="absolute h-8 w-1 bg-white rounded-full shadow-[0_0_15px_white] transition-all duration-75 ease-out"
+                    style={{ left: `${Math.min(96, Math.max(4, 50 + (cents / 100) * 45))}%` }}
                 ></div>
+            </div>
+            <div className="flex justify-between w-full text-[10px] text-slate-500 mt-2 font-mono">
+                <span>-50</span>
+                <span>0</span>
+                <span>+50</span>
             </div>
         </div>
 
