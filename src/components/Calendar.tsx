@@ -108,9 +108,12 @@ export default function Calendar({ onBack }: { onBack: () => void }) {
                     <div className="flex items-center gap-2"><span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Events</div>
                 </div>
 
-                <div className="mt-4 flex gap-2">
-                  <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Add event..." className="flex-grow p-2 border rounded-xl" />
-                  <button onClick={addEvent} className="p-2 bg-indigo-600 text-white rounded-xl"><Plus/></button>
+                <div className="mt-4 flex gap-2 flex-col">
+                  <p className="text-sm text-slate-600 font-medium">Add event for {format(selectedDate, 'MMM d, yyyy')}</p>
+                  <div className="flex gap-2">
+                    <input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Add event title..." className="flex-grow p-2 border rounded-xl" />
+                    <button onClick={addEvent} className="px-4 py-2 bg-indigo-600 text-white rounded-xl">Add</button>
+                  </div>
                 </div>
 
                 <div className="mt-6 border-t border-slate-100 pt-4">

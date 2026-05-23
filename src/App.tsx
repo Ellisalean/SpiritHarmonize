@@ -164,7 +164,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-cyan-400 via-emerald-400 to-orange-300 text-gray-900 p-4 pb-24 font-sans">
+    <div className="min-h-screen bg-gradient-to-b from-cyan-400 via-emerald-400 to-orange-300 text-gray-900 p-4 pb-32 font-sans">
       {currentView !== 'viewer' && (
         <header className="flex justify-between items-center mb-6 pt-4">
           <div className="flex items-center gap-2">

@@ -47,7 +47,7 @@ export default function SetlistPlanner({ onBack, onSelectSetlist }: SetlistPlann
   };
 
   return (
-    <div className="p-4 bg-white min-h-screen">
+    <div className="p-4 bg-white h-full">
       <header className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Setlist Planner</h2>
         <button onClick={onBack} className="text-gray-500">Close</button>
@@ -88,8 +88,8 @@ export default function SetlistPlanner({ onBack, onSelectSetlist }: SetlistPlann
                     <button onClick={() => setEditingSetlist(null)}><X /></button>
                 </header>
                 <div className="space-y-4">
-                    <div>
-                        <h4 className="font-semibold text-sm text-gray-500 mb-2">Selected Songs (in order)</h4>
+                     <div>
+                        <h4 className="font-semibold text-sm text-gray-500 mb-2">Selected Songs (in order) - <span className="text-blue-600 font-bold">Auto-saving...</span></h4>
                         {editingSetlist.songIds.map(id => {
                             const song = songs.find(s => s.id === id);
                             if (!song) return null;
@@ -97,10 +97,10 @@ export default function SetlistPlanner({ onBack, onSelectSetlist }: SetlistPlann
                                 <button 
                                     key={song.id}
                                     onClick={() => toggleSongInSetlist(editingSetlist, song.id)}
-                                    className="w-full p-3 rounded-lg flex justify-between items-center bg-blue-100 text-blue-800 mb-2"
+                                    className="w-full p-4 rounded-xl flex justify-between items-center bg-blue-50 text-blue-900 mb-3 border-2 border-blue-200 transition-all hover:bg-blue-100"
                                 >
-                                    {song.title} - {song.artist}
-                                    <span className="text-blue-600 font-bold">✓</span>
+                                    <span className="font-medium">{song.title} - {song.artist}</span>
+                                    <span className="text-blue-600 font-bold text-lg">✓</span>
                                 </button>
                             );
                         })}
@@ -111,9 +111,10 @@ export default function SetlistPlanner({ onBack, onSelectSetlist }: SetlistPlann
                             <button 
                                 key={song.id}
                                 onClick={() => toggleSongInSetlist(editingSetlist, song.id)}
-                                className="w-full p-3 rounded-lg flex justify-between items-center bg-gray-100 mb-2"
+                                className="w-full p-4 rounded-xl flex justify-between items-center bg-gray-50 mb-3 border border-gray-200 transition-all hover:bg-gray-100"
                             >
-                                {song.title} - {song.artist}
+                                <span className="font-medium">{song.title} - {song.artist}</span>
+                                <Plus size={18} className="text-gray-400" />
                             </button>
                         ))}
                     </div>

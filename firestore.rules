@@ -27,6 +27,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Setlists Collection
+    match /setlists/{setlistId} {
+      allow read, write: if true;
+    }
+
     // Songs Collection
     match /songs/{songId} {
       allow read, list: if true;
