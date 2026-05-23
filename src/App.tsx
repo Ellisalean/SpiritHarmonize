@@ -15,6 +15,7 @@ import TunerTools from './components/TunerTools';
 import Announcements from './components/Announcements';
 import CalendarView from './components/Calendar';
 import Devotionals from './components/Devotionals';
+import MusicPlayer from './components/MusicPlayer';
 import SplashScreen from './components/SplashScreen';
 import { Song, Setlist, getSongs } from './lib/db';
 import { resetSongs } from './lib/seed';
@@ -123,6 +124,10 @@ export default function App() {
     if (currentView === 'devotionals') {
         return <Devotionals onBack={() => setCurrentView('menu')} />;
     }
+    
+    if (currentView === 'music') {
+        return <MusicPlayer onBack={() => setCurrentView('menu')} />;
+    }
     // Main Menu
     return (
       <>
@@ -191,7 +196,7 @@ export default function App() {
         <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 flex justify-between px-8 text-gray-400">
           <button onClick={() => setCurrentView('menu')} className={currentView === 'menu' ? "text-blue-600" : ""}><Home size={24} /></button>
           <button onClick={() => setCurrentView('sheetMusic')} className={currentView === 'sheetMusic' ? "text-blue-600" : ""}><Library size={24} /></button>
-          <button className="bg-blue-600 text-white p-3 rounded-full -mt-8 shadow-xl"><Play size={30} /></button>
+          <button onClick={() => setCurrentView('music')} className="bg-blue-600 text-white p-3 rounded-full -mt-8 shadow-xl"><Play size={30} /></button>
           <button><Heart size={24} /></button>
           <button><User size={24} /></button>
         </nav>
