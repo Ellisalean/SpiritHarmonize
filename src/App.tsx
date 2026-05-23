@@ -3,15 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { Home, Library, PlusCircle, Heart, User, Search, Bell, Music, Calendar, FileText, BarChart2, Mic, Megaphone, CalendarDays, BookOpen, Play } from 'lucide-react';
 import WelcomeScreen from './components/WelcomeScreen';
 import SheetMusicList from './components/SheetMusicList';
+import SetlistPlanner from './components/SetlistPlanner';
 import PdfViewer from './components/PdfViewer';
 import ChordChartViewer from './components/ChordChartViewer';
-import { Song } from './lib/db';
-import { seedSongs } from './lib/seed';
+import TunerTools from './components/TunerTools';
+import { Song, Setlist, getSongs } from './lib/db';
+import { resetSongs } from './lib/seed';
 import { auth } from './lib/firebase';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 
@@ -20,15 +22,23 @@ export default function App() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [currentView, setCurrentView] = useState('menu');
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
+  const [activeSetlist, setActiveSetlist] = useState<Setlist | null>(null);
+  const initialized = useRef(false);
 
   useEffect(() => {
     async function initializeData() {
+      if (initialized.current) return;
+      initialized.current = true;
       try {
-        console.log("Starting song seeding independently of auth...");
-        await seedSongs();
-        console.log("Song seeding complete.");
+        console.log("App initializing...");
+        const songs = await getSongs();
+        if (songs.length === 0) {
+            console.log("Database empty, seeding...");
+            await resetSongs();
+        }
+        console.log("Initialization complete.");
       } catch (error) {
-        console.error("Failed to seed songs:", error);
+        console.error("Failed to initialize:", error);
       }
       setIsInitialized(true);
     }
@@ -37,8 +47,8 @@ export default function App() {
 
   const menuItems = [
     { title: 'Sheet Music', icon: FileText, color: 'text-blue-600', action: () => setCurrentView('sheetMusic') },
-    { title: 'Charts', icon: BarChart2, color: 'text-orange-500' },
-    { title: 'Tuner & Tools', icon: Mic, color: 'text-teal-500' },
+    { title: 'Setlists', icon: BarChart2, color: 'text-orange-500', action: () => setCurrentView('setlistPlanner') },
+    { title: 'Tuner & Tools', icon: Mic, color: 'text-teal-500', action: () => setCurrentView('tuner') },
     { title: 'Announcements', icon: Megaphone, color: 'text-red-500' },
     { title: 'Calendar', icon: CalendarDays, color: 'text-purple-600' },
     { title: 'Devotionals', icon: BookOpen, color: 'text-indigo-600' },
@@ -54,10 +64,22 @@ export default function App() {
 
   const renderContent = () => {
     if (currentView === 'sheetMusic') {
-      return <SheetMusicList onSongClick={(song) => {
+      return <SheetMusicList 
+        filterBySetlist={activeSetlist || undefined}
+        onClearFilter={() => setActiveSetlist(null)}
+        onSongClick={(song) => {
           setSelectedSong(song);
           setCurrentView('viewer');
       }} />;
+    }
+    
+    if (currentView === 'setlistPlanner') {
+        return <SetlistPlanner 
+            onSelectSetlist={(setlist) => {
+                setActiveSetlist(setlist);
+                setCurrentView('sheetMusic');
+            }}
+            onBack={() => setCurrentView('menu')} />;
     }
 
     if (currentView === 'viewer' && selectedSong) {
@@ -76,6 +98,10 @@ export default function App() {
       />;
     }
 
+    if (currentView === 'tuner') {
+        return <TunerTools onBack={() => setCurrentView('menu')} />;
+    }
+    
     // Main Menu
     return (
       <>
@@ -87,6 +113,17 @@ export default function App() {
             className="w-full pl-10 pr-4 py-3 bg-white rounded-2xl shadow-sm border border-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all" 
           />
         </div>
+        
+        <button 
+            onClick={() => { 
+                if(confirm("¿Estás seguro de resetear la base de datos? Esto borrará todo y recargará la lista original.")) { 
+                    resetSongs().then(() => window.location.reload());
+                } 
+            }}
+            className="w-full mb-4 p-3 bg-red-100 text-red-600 rounded-xl hover:bg-red-200 font-bold"
+        >
+            Reset Database (Fix Duplicates)
+        </button>
 
         <section className="grid grid-cols-2 gap-4 mb-8">
           {menuItems.map((item, index) => (
