@@ -12,6 +12,8 @@ import SetlistPlanner from './components/SetlistPlanner';
 import PdfViewer from './components/PdfViewer';
 import ChordChartViewer from './components/ChordChartViewer';
 import TunerTools from './components/TunerTools';
+import Announcements from './components/Announcements';
+import CalendarView from './components/Calendar';
 import { Song, Setlist, getSongs } from './lib/db';
 import { resetSongs } from './lib/seed';
 import { auth } from './lib/firebase';
@@ -49,8 +51,8 @@ export default function App() {
     { title: 'Sheet Music', icon: FileText, color: 'text-blue-600', action: () => setCurrentView('sheetMusic') },
     { title: 'Setlists', icon: BarChart2, color: 'text-orange-500', action: () => setCurrentView('setlistPlanner') },
     { title: 'Tuner & Tools', icon: Mic, color: 'text-teal-500', action: () => setCurrentView('tuner') },
-    { title: 'Announcements', icon: Megaphone, color: 'text-red-500' },
-    { title: 'Calendar', icon: CalendarDays, color: 'text-purple-600' },
+    { title: 'Announcements', icon: Megaphone, color: 'text-red-500', action: () => setCurrentView('announcements') },
+    { title: 'Calendar', icon: CalendarDays, color: 'text-purple-600', action: () => setCurrentView('calendar') },
     { title: 'Devotionals', icon: BookOpen, color: 'text-indigo-600' },
   ];
 
@@ -102,6 +104,13 @@ export default function App() {
         return <TunerTools onBack={() => setCurrentView('menu')} />;
     }
     
+    if (currentView === 'announcements') {
+        return <Announcements onBack={() => setCurrentView('menu')} />;
+    }
+    
+    if (currentView === 'calendar') {
+        return <CalendarView onBack={() => setCurrentView('menu')} />;
+    }
     // Main Menu
     return (
       <>
