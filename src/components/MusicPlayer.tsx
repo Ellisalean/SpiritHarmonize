@@ -23,9 +23,21 @@ export default function MusicPlayer({ onBack }: { onBack: () => void }) {
                 </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto pt-20 px-6">
+            <div className="px-6 -mt-16">
+                 <div className="aspect-video w-full max-w-sm mx-auto rounded-3xl overflow-hidden shadow-lg border-4 border-white bg-black">
+                    <ReactPlayer 
+                        key={selectedSong.id}
+                        url={selectedSong.youtubeUrl} 
+                        width="100%"
+                        height="100%"
+                        controls={true}
+                    />
+                 </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-6 pt-6">
                 <h3 className="font-extrabold text-slate-800 mb-4 tracking-tight">Repertorio</h3>
-                <div className="space-y-4 pb-24">
+                <div className="space-y-4 pb-12">
                     {songs.map(song => (
                         <button 
                             key={song.id}
@@ -49,27 +61,6 @@ export default function MusicPlayer({ onBack }: { onBack: () => void }) {
                             <ChevronRight size={20} className="text-slate-400" />
                         </button>
                     ))}
-                </div>
-            </div>
-            
-            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-4 shadow-2xl flex items-center gap-4 z-10">
-                <div className="flex-1">
-                    <div className="font-bold text-slate-900 truncate">{selectedSong.title}</div>
-                    <div className="text-xs text-slate-500 font-medium truncate">{selectedSong.artist}</div>
-                </div>
-                <button 
-                    onClick={() => setIsPlaying(!isPlaying)}
-                    className="p-4 bg-indigo-600 text-white rounded-full shadow-lg"
-                >
-                    {isPlaying ? <Pause size={24} /> : <Play size={24} />}
-                </button>
-                <div className="hidden">
-                    <ReactPlayer 
-                        url={selectedSong.youtubeUrl} 
-                        playing={isPlaying}
-                        width="0"
-                        height="0"
-                    />
                 </div>
             </div>
         </div>
