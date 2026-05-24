@@ -13,4 +13,5 @@ export const songs: Song[] = [
     { id: '5', title: 'Alaba', artist: 'Elevation Worship', youtubeUrl: 'https://www.youtube.com/watch?v=ZkqNVfCPZH4' },
     { id: '6', title: 'Averly Morillo - ¿Quién Podrá?', artist: 'Averly Morillo', youtubeUrl: 'https://www.youtube.com/watch?v=j4_Hzir24UI' },
     { id: '7', title: 'Milagroso - Abres camino', artist: 'OCEAN', youtubeUrl: 'https://www.youtube.com/watch?v=Dj8gGf7-FVI' },
+    { id: '8', title: 'Danzando ', artist: 'Christine D Clario', youtubeUrl: 'https://www.youtube.com/watch?v=_1MfaKz_eCQ?si=asN904XPNhRQLtQc' },
 ];
