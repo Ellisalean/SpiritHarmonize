@@ -35,11 +35,15 @@ export default function App() {
   const initialized = useRef(false);
 
   useEffect(() => {
+    console.log("Setting up auth listener...");
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        console.log("Auth state changed, user:", currentUser ? currentUser.email : "null");
         setUser(currentUser);
         if (currentUser && currentUser.email === import.meta.env.VITE_ADMIN_EMAIL) {
+            console.log("User authorized as Admin.");
             setIsAdminMode(true);
         } else {
+            if (currentUser) console.log("User not authorized as Admin. Email:", currentUser.email, "Expected:", import.meta.env.VITE_ADMIN_EMAIL);
             setIsAdminMode(false);
         }
     });
@@ -268,16 +272,23 @@ export default function App() {
           <button onClick={() => setCurrentView('music')} className="bg-blue-600 text-white p-3 rounded-full -mt-8 shadow-xl"><Play size={30} /></button>
           <button><Heart size={24} /></button>
           {user ? (
-            <button onClick={() => signOut(auth)} className="text-red-500"><User size={24} /></button>
+            <button onClick={() => signOut(auth)} className="text-green-600 flex flex-col items-center">
+              <User size={24} />
+              <span className="text-[10px] font-bold">Log out</span>
+            </button>
           ) : (
             <button onClick={async () => {
               const provider = new GoogleAuthProvider();
               try {
                 await signInWithPopup(auth, provider);
               } catch(e) {
-                console.error(e);
+                console.error("Sign-in failed:", e);
+                alert("Sign-in failed. Please check the console for details. Ensure your domain is authorized in Firebase console.");
               }
-            }}><User size={24} /></button>
+            }} className="text-gray-400 flex flex-col items-center">
+              <User size={24} />
+              <span className="text-[10px] font-bold">Log in</span>
+            </button>
           )}
         </nav>
       )}
