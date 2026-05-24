@@ -19,8 +19,8 @@ import MusicPlayer from './components/MusicPlayer';
 import SplashScreen from './components/SplashScreen';
 import { Song, Setlist, getSongs } from './lib/db';
 import { resetSongs, forceResetSongs } from './lib/seed';
+import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged, User as FirebaseUser, signOut } from 'firebase/auth';
 import { auth } from './lib/firebase';
-import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -30,8 +30,22 @@ export default function App() {
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
   const [activeSetlist, setActiveSetlist] = useState<Setlist | null>(null);
   const [resetState, setResetState] = useState<'idle' | 'confirming' | 'resetting' | 'done'>('idle');
+  const [user, setUser] = useState<FirebaseUser | null>(null);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const initialized = useRef(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        setUser(currentUser);
+        if (currentUser && currentUser.email === import.meta.env.VITE_ADMIN_EMAIL) {
+            setIsAdminMode(true);
+        } else {
+            setIsAdminMode(false);
+        }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     async function initializeData() {
@@ -39,12 +53,6 @@ export default function App() {
       initialized.current = true;
       try {
         console.log("App initializing...");
-        try {
-          await signInAnonymously(auth);
-          console.log("Anonymous authentication successful.");
-        } catch (authError) {
-          console.warn("Anonymous sign in failed or is disabled in Firebase console, proceeding anonymously:", authError);
-        }
         const songs = await getSongs();
         if (songs.length === 0) {
             console.log("Database empty, seeding...");
@@ -150,12 +158,9 @@ export default function App() {
         </div>
        
         <div className="flex justify-end mb-2">
-            <button 
-                onClick={() => setIsAdminMode(!isAdminMode)}
-                className={`text-xs font-bold px-3 py-1 rounded-full ${isAdminMode ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-500'}`}
-            >
+            <span className={`text-xs font-bold px-3 py-1 rounded-full ${isAdminMode ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-500'}`}>
                 {isAdminMode ? 'Modo Admin: ON' : 'Modo Admin: OFF'}
-            </button>
+            </span>
         </div>
 
         {isAdminMode && <>
@@ -262,7 +267,18 @@ export default function App() {
           <button onClick={() => setCurrentView('sheetMusic')} className={currentView === 'sheetMusic' ? "text-blue-600" : ""}><Library size={24} /></button>
           <button onClick={() => setCurrentView('music')} className="bg-blue-600 text-white p-3 rounded-full -mt-8 shadow-xl"><Play size={30} /></button>
           <button><Heart size={24} /></button>
-          <button><User size={24} /></button>
+          {user ? (
+            <button onClick={() => signOut(auth)} className="text-red-500"><User size={24} /></button>
+          ) : (
+            <button onClick={async () => {
+              const provider = new GoogleAuthProvider();
+              try {
+                await signInWithPopup(auth, provider);
+              } catch(e) {
+                console.error(e);
+              }
+            }}><User size={24} /></button>
+          )}
         </nav>
       )}
     </div>

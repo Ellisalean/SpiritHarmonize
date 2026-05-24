@@ -29,7 +29,8 @@ service cloud.firestore {
 
     // Setlists Collection
     match /setlists/{setlistId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'eliseortega20@gmail.com';
     }
 
     // Songs Collection
@@ -47,13 +48,13 @@ service cloud.firestore {
     // Songs Collection V2
     match /songs_v2/{songId} {
       allow read, list: if true;
-      allow write: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'eliseortega20@gmail.com';
     }
 
     // Songs Collection V4
     match /songs_v4/{songId} {
       allow read, list: if true;
-      allow write: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'eliseortega20@gmail.com';
     }
   }
 }
