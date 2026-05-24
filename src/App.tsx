@@ -19,7 +19,7 @@ import MusicPlayer from './components/MusicPlayer';
 import SplashScreen from './components/SplashScreen';
 import { Song, Setlist, getSongs } from './lib/db';
 import { resetSongs, forceResetSongs } from './lib/seed';
-import { GoogleAuthProvider, signInWithRedirect, onAuthStateChanged, User as FirebaseUser, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithRedirect, onAuthStateChanged, User as FirebaseUser, signOut, getRedirectResult } from 'firebase/auth';
 import { auth } from './lib/firebase';
 
 export default function App() {
@@ -57,6 +57,7 @@ export default function App() {
       initialized.current = true;
       try {
         console.log("App initializing...");
+        await getRedirectResult(auth);
         const songs = await getSongs();
         if (songs.length === 0) {
             console.log("Database empty, seeding...");
