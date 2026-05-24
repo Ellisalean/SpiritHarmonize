@@ -30,6 +30,7 @@ export default function App() {
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
   const [activeSetlist, setActiveSetlist] = useState<Setlist | null>(null);
   const [resetState, setResetState] = useState<'idle' | 'confirming' | 'resetting' | 'done'>('idle');
+  const [isAdminMode, setIsAdminMode] = useState(false);
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -93,6 +94,7 @@ export default function App() {
     
     if (currentView === 'setlistPlanner') {
         return <SetlistPlanner 
+            isAdminMode={isAdminMode}
             onSelectSetlist={(setlist) => {
                 setActiveSetlist(setlist);
                 setCurrentView('sheetMusic');
@@ -146,61 +148,72 @@ export default function App() {
             className="w-full pl-10 pr-4 py-3 bg-white rounded-2xl shadow-sm border border-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-200 transition-all" 
           />
         </div>
-        
-        {resetState === 'idle' && (
-          <button 
-              onClick={() => setResetState('confirming')}
-              className="w-full mb-4 p-3 bg-red-100 text-red-600 rounded-xl hover:bg-red-200 font-bold transition-all text-center"
-          >
-              Resetear Base de Datos
-          </button>
-        )}
+       
+        <div className="flex justify-end mb-2">
+            <button 
+                onClick={() => setIsAdminMode(!isAdminMode)}
+                className={`text-xs font-bold px-3 py-1 rounded-full ${isAdminMode ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-500'}`}
+            >
+                {isAdminMode ? 'Modo Admin: ON' : 'Modo Admin: OFF'}
+            </button>
+        </div>
 
-        {resetState === 'confirming' && (
-          <div className="w-full mb-4 p-4 bg-red-50 border border-red-200 rounded-2xl flex flex-col gap-3">
-            <p className="text-red-800 text-sm font-bold text-center">
-              ¿Estás seguro de resetear la base de datos? Esto borrará todo y recargará la lista original.
-            </p>
-            <div className="flex gap-2">
+        {isAdminMode && <>
+            {resetState === 'idle' && (
               <button 
-                onClick={async () => {
-                  setResetState('resetting');
-                  try {
-                    await resetSongs();
-                    setResetState('done');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
-                  } catch (err) {
-                    console.error(err);
-                    setResetState('idle');
-                  }
-                }}
-                className="flex-1 p-2.5 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 transition-colors"
+                  onClick={() => setResetState('confirming')}
+                  className="w-full mb-4 p-3 bg-red-100 text-red-600 rounded-xl hover:bg-red-200 font-bold transition-all text-center"
               >
-                Sí, Resetear
+                  Resetear Base de Datos
               </button>
-              <button 
-                onClick={() => setResetState('idle')}
-                className="flex-1 p-2.5 bg-gray-200 text-gray-700 rounded-xl font-bold text-sm hover:bg-gray-300 transition-colors"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        )}
+            )}
 
-        {resetState === 'resetting' && (
-          <div className="w-full mb-4 p-3 bg-yellow-100 text-yellow-700 rounded-xl font-bold text-center animate-pulse">
-            Restableciendo canciones... Por favor espera.
-          </div>
-        )}
+            {resetState === 'confirming' && (
+              <div className="w-full mb-4 p-4 bg-red-50 border border-red-200 rounded-2xl flex flex-col gap-3">
+                <p className="text-red-800 text-sm font-bold text-center">
+                  ¿Estás seguro de resetear la base de datos? Esto borrará todo y recargará la lista original.
+                </p>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={async () => {
+                      setResetState('resetting');
+                      try {
+                        await resetSongs();
+                        setResetState('done');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                      } catch (err) {
+                        console.error(err);
+                        setResetState('idle');
+                      }
+                    }}
+                    className="flex-1 p-2.5 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 transition-colors"
+                  >
+                    Sí, Resetear
+                  </button>
+                  <button 
+                    onClick={() => setResetState('idle')}
+                    className="flex-1 p-2.5 bg-gray-200 text-gray-700 rounded-xl font-bold text-sm hover:bg-gray-300 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
 
-        {resetState === 'done' && (
-          <div className="w-full mb-4 p-3 bg-green-100 text-green-700 rounded-xl font-bold text-center">
-            ¡Base de datos reseteada exitosamente!
-          </div>
-        )}
+            {resetState === 'resetting' && (
+              <div className="w-full mb-4 p-3 bg-yellow-100 text-yellow-700 rounded-xl font-bold text-center animate-pulse">
+                Restableciendo canciones... Por favor espera.
+              </div>
+            )}
+
+            {resetState === 'done' && (
+              <div className="w-full mb-4 p-3 bg-green-100 text-green-700 rounded-xl font-bold text-center">
+                ¡Base de datos reseteada exitosamente!
+              </div>
+            )}
+        </>}
 
         <section className="grid grid-cols-2 gap-4 mb-8">
           {menuItems.map((item, index) => (

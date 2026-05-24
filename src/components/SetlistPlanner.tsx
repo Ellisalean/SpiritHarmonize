@@ -5,9 +5,10 @@ import { Plus, X, Trash2 } from 'lucide-react';
 interface SetlistPlannerProps {
   onBack: () => void;
   onSelectSetlist: (setlist: Setlist) => void;
+  isAdminMode: boolean;
 }
 
-export default function SetlistPlanner({ onBack, onSelectSetlist }: SetlistPlannerProps) {
+export default function SetlistPlanner({ onBack, onSelectSetlist, isAdminMode }: SetlistPlannerProps) {
   const [setlists, setSetlists] = useState<Setlist[]>([]);
   const [songs, setSongs] = useState<Song[]>([]);
   const [newSetlistName, setNewSetlistName] = useState('');
@@ -72,7 +73,7 @@ export default function SetlistPlanner({ onBack, onSelectSetlist }: SetlistPlann
               <h3 className="font-semibold text-lg">{setlist.name}</h3>
               <div className="flex gap-2">
                   <button onClick={(e) => { e.stopPropagation(); setEditingSetlist(setlist); }} className="text-blue-600 font-medium">Editar</button>
-                  <button onClick={(e) => { e.stopPropagation(); deleteSetlistById(setlist.id); }} className="text-red-500"><Trash2 size={18} /></button>
+                  {isAdminMode && <button onClick={(e) => { e.stopPropagation(); deleteSetlistById(setlist.id); }} className="text-red-500"><Trash2 size={18} /></button>}
               </div>
             </div>
             <p className="text-sm text-gray-500 mb-2">{setlist.songIds.length} canciones</p>
