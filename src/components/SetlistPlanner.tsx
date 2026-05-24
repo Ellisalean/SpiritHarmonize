@@ -24,13 +24,14 @@ export default function SetlistPlanner({ onBack, onSelectSetlist, isAdminMode }:
   }, []);
 
   const createSetlist = async () => {
-    if (!newSetlistName) return;
+    if (!isAdminMode || !newSetlistName) return;
     const newId = await addSetlist({ name: newSetlistName, date: new Date().toISOString(), songIds: [] });
     setSetlists([...setlists, { id: newId, name: newSetlistName, date: new Date().toISOString(), songIds: [] }]);
     setNewSetlistName('');
   };
 
   const toggleSongInSetlist = async (setlist: Setlist, songId: string) => {
+    if (!isAdminMode) return;
     const isSelected = setlist.songIds.includes(songId);
     const newSongIds = isSelected 
       ? setlist.songIds.filter(id => id !== songId)
