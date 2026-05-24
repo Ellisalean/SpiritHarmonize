@@ -2,7 +2,7 @@ import { getSongs, deleteSong, addSong } from './db';
 import { db } from './firebase';
 import { collection, deleteDoc, doc, addDoc, setDoc, writeBatch, getDocs } from 'firebase/firestore';
 
-const SONGS_COLLECTION = 'songs_v3';
+const SONGS_COLLECTION = 'songs_v4';
 
 const initialSongs = [
   {
@@ -27,47 +27,45 @@ const initialSongs = [
       title: 'Hay poder en la alabanza',
       artist: 'Jesús Worship Center',
       pdfUrl: '',
-      chords: "//Dm G Dm G Dm G Bb A//\n\nCORO:\n\nN.C.              Dm     G\nHay poder en la alabanza\nDm.  G.       Dm        G\nHay poder en la alabanza\nDm     G                Bb\nHay poder en la alabanza\n          C                       Dm\nCuando tu pueblo canta y te danza\n\n\nVERSO:\n\nN.C.      Dm\nTengo un Dios\n         Dm   G\nQue es real\n        Dm   G            Dm   G\nEl se mueve Cuando yo le alabo\n\n          Bb (manten el acorde)\nTengo un Dios\nQue es capaz\nPara El\nNada es imposible\n\nGm\nAbrio el mar\nBb                     A\nY aun los vientos le obedecen\n\nN.C.     Dm   Gm\nTengo un Dios\n        Dm   Gm\nQue es amor\n    Dm\nPoderoso\nGm              Dm  C  Bb  Gm  A (pausa)"
+      chords: "[Dm] [G] [Dm] [G]\n\nCORO:\n\n[N.C.] [Dm] [G]\nHay poder en la alabanza\n[Dm] [G] [Dm] [G]\nHay poder en la alabanza\n[Dm] [G] [Bb]\nHay poder en la alabanza\n[C] [Dm]\nCuando tu pueblo canta y te danza\n\n\nVERSO:\n\n[N.C.] [Dm]\nTengo un Dios\n[Dm] [G]\nQue es real\n[Dm] [G] [Dm] [G]\nEl se mueve Cuando yo le alabo\n\n[Bb]\nTengo un Dios\nQue es capaz\nPara El\nNada es imposible\n\n[Gm]\nAbrio el mar\n[Bb] [A]\nY aun los vientos le obedecen\n\n[N.C.] [Dm] [Gm]\nTengo un Dios\n[Dm] [Gm]\nQue es amor\n[Dm]\nPoderoso\n[Gm] [Dm] [C] [Bb] [Gm] [A]"
   },
   {
       title: 'El ha cambiado mi lamento',
       artist: 'Desconocido',
       pdfUrl: '',
-      chords: "Intro : \nG, B, D, G, E, C, A, G, F#, A, C, E, D, C#, D, E, D;\nG, B, D, G, E, C, E, G#, A, B, C, B, A, F#, G\n\nCORO\n G Am/F# Baug D/E Em7 D/F# G Am7\n// EL HA CAM--BIA---DO MI LA-MENTO\n Bm7 C2 Em/D D G\nY MI TRISTEZA EN DAN---ZA\nG Am/F# Baug D/E Em7 D/F# G Am7 Bm7 Am/C C/D D/F# G\nNO CA-----LLA--RE----E CAN-TA-RE DE TU GO---ZO EN MI //\n\nVOZ\n\nG C2/G G\nDONDE SOLO HABIA DOLOR\n G C2/G G\nEL TRAJO SANIDAD\n G C2/G G\nDONDE HABIA DESTRUCCION\n G C2/ G\nEL NOS DIO CONSOLACION\n\nG/B Am7 G F C/E C/D G\nSIEN--TO SU DULCE, DULCE AMOR QUE ME ILUMI---NA\nG/B Am7 G F C/E\nVE----O EL RESPLANDOR DEL SOL\n Cm/Eb C/D Am7 G/B C D\nQUE BRILLANDO ESTA CON SU ALE--GRI-A\n \nCORO X 2     ////   VOZ \n\nINTERLUDIO\nF2/G C/G A/G C2/G\nTU IRA SERA MOMENTANEA SEÑOR\nG/A A\nMAS TU GRACIA Y FAVOR\nG/D Am/D Am7 G/B C D G\nDURARAN PARA TODA LA VI--DA\n\nCORO X 2    /////  INTRO  X 2"
+      chords: "Intro : \n[G] [B] [D] [G] [E] [C] [A] [G] [F#] [A] [C] [E] [D] [C#] [D] [E] [D]\n[G] [B] [D] [G] [E] [C] [E] [G#] [A] [B] [C] [B] [A] [F#] [G]\n\nCORO\n[G] [Am] [F#] [B] [D] [E] [Em7] [D] [G] [Am7]\n// EL HA CAM--BIA---DO MI LA-MENTO\n[Bm7] [C] [Em] [D] [G]\nY MI TRISTEZA EN DAN---ZA\n[G] [Am] [F#] [B] [D] [E] [Em7] [D] [G] [Am7] [Bm7] [Am] [C] [D] [G]\nNO CA-----LLA--RE----E CAN-TA-RE DE TU GO---ZO EN MI //\n\nVOZ\n\n[G] [C] [G]\nDONDE SOLO HABIA DOLOR\n[G] [C] [G]\nEL TRAJO SANIDAD\n[G] [C] [G]\nDONDE HABIA DESTRUCCION\n[G] [C] [G]\nEL NOS DIO CONSOLACION\n\n[G] [Am] [G] [F] [C] [G]\nSIEN--TO SU DULCE, DULCE AMOR QUE ME ILUMI---NA\n[G] [Am] [G] [F] [C]\nVE----O EL RESPLANDOR DEL SOL\n[Cm] [C] [Am] [G] [C] [D]\nQUE BRILLANDO ESTA CON SU ALE--GRI-A"
   },
   {
       title: 'Con Fuego Y Poder',
       artist: 'Desconocido',
       pdfUrl: '',
-      chords: "Intro: [Em | D | Am | %] \n\nVoz: [Em | % | D | Am | C | G | D | A] \n\nPre Coro: [B - C | Em - D | B - C | E - D] \n\nCoro: [C | G | D/F# | Em]"
+      chords: "Intro: [Em] [D] [Am] \n\nVoz: [Em] [D] [Am] [C] [G] [D] [A] \n\nPre Coro: [B] [C] [Em] [D] [B] [C] [Em] [D] \n\nCoro: [C] [G] [D] [Em]"
   },
   {
       title: '¿Quién Podrá?',
       artist: 'Desconocido',
       pdfUrl: '',
-      chords: "Intro: [F - Bb | F] x2\n[F - Bb | C - D | F - Bb | F]\n\nSanto 1ra Parte: [B | C | A - C]\n\nSanto 2da Parte: [B | C | D - C | B]\n\nNingún Principado: [D | C | Bb | Gm]"
+      chords: "Intro: [F] [Bb] [F]\n[F] [Bb] [C] [D] [F] [Bb] [F]\n\nSanto 1ra Parte: [B] [C] [A] [C]\n\nSanto 2da Parte: [B] [C] [D] [C] [B]\n\nNingún Principado: [D] [C] [Bb] [Gm]"
   },
   {
       title: 'Él Viene Otra Vez',
       artist: 'Christiane D\'Clario & Alex Zurdo',
       pdfUrl: '',
-      chords: "[INTRO]\nF – C – F –\nF – C – F – Bb\n\n[VERSO 1]\nF C Bb F\nYa no puedo esperar por el día en que volverá\nC Bb F\nA la puerta él está y el tiempo se acerca ya\nF C F Bb F\neh eh eh eh –\nC Bb F\nComo anhelo estar, junto a él por la eternidad\nC Bb F\nTodo hay que preparar, porque Cristo viene ya\nC F Bb\nVen, ven, ven\n(Dilo conmigo) Dm C Bb\nven, ven\n\n[CORO 1]\nF C/E F\nEl viene otra vez\nBb F C/E F\nCon gloria y con poder\nBb F C/E F\nCon gloria y con poder\nBb\nY viene entre las nubes\nDm C Bb\nY su iglesia dice: Ven, ven, ven, ven\nF C/E F Bb Dm C Bb\nVen, ven, ven\n\n[VERSO 2]\nF C F Bb F\nComo anhelo estar, junto a él por la eternidad\nC F Bb C/E F\nTodo hay que preparar porque Cristo viene ya\nC F Bb\nVen, ven (oh ven señor Jesús)\nC/E Bb\nven, ven\n\n[CORO 2]\nF\nÉl viene otra vez\nC/E F\n(de que viene, viene y nada lo detiene)\nBb F\nCon gloria y con poder\nC/E F\n\n[PUENTE (coro 3)]\n(con mucha gloria, con su poder)\nBb F\nCon gloria y con poder\nC F/C\nY viene entre las nubes (lo veré, lo veré, lo veré, lo veré)\nBb Dm C Bb\nY su iglesia dice: Ven, ven, ven, ven\n\n[CORO 3]\nF C/E F\nÉl viene otra vez\nBb F\nCon gloria y con poder\nC/E F\n(con gloria y con poder)\nBb F\nCon gloria y con poder\nC F\nY viene entre las nubes (por su iglesia)\nBb Dm C Bb\nY su iglesia dice: Ven, ven, ven, ven\nF\nVen, ven, ven\n\n[PUENTE]\nBb F/A# C/E Dm\nTodo ojo le verá, muertos resucitarán\nBb\nY su pueblo se unirá en el cielo\nF/A# A7 Dm\nYa no habrá porque llorar, será un gozo sin final\nBb\nJuntos, cantaremos santo, santo\nBb F/A# C/E Dm\nTodo ojo le verá, muertos resucitarán\nBb\nY su pueblo se unirá en el cielo\nF/A# A7 Dm\nYa no habrá porque llorar, será un gozo sin final\nBb\nJuntos, cantaremos santo, santo\n\n[FINAL]\nF C/E\nSanto, santo\nDm C/E Bb\nJuntos cantaremos santo, santo\nF C/E\nSanto, santo\nDm C/E Bb\nJuntos cantaremos santo, santo\nF C/E\nPor los siglos de los siglos (santo, santo)\nDm C/E Bb\nPorque solo él es digno (santo, santo)\nF C\n\nVamos cántalo con tu vecino (santo, santo)\nDm\nEs que Cristo ha vencido\n\n[CORO FINAL]\nF\nÉl viene otra vez\nC F\n(él viene otra vez)\nBb F\nCon gloria y con poder\nC F\n(con gloria y con poder)\nBb F\nCon gloria y con poder\nC F/C\nY viene entre las nubes (lo veré, lo veré, lo veré, lo veré)\nBb Dm C/E Bb\nY su iglesia dice: Ven, ven, ven; ven,\nF C F\nVen, ven, ven\nBb F C F\nY dice ven, ven, ven\nBb F C F Bb Dm C/E Bb\nven, ven, ven\nF\nEl viene otra vez"
+      chords: "[INTRO]\n[F] [C] [F]\n[F] [C] [F] [Bb]\n\n[VERSO 1]\n[F] [C] [Bb] [F]\nYa no puedo esperar por el día en que volverá\n[C] [Bb] [F]\nA la puerta él está y el tiempo se acerca ya\n[F] [C] [F] [Bb] [F]\neh eh eh eh –\n[C] [Bb] [F]\nComo anhelo estar, junto a él por la eternidad\n[C] [Bb] [F]\nTodo hay que preparar, porque Cristo viene ya\n[C] [F] [Bb]\nVen, ven, ven\n(Dilo conmigo) [Dm] [C] [Bb]\nven, ven\n\n[CORO 1]\n[F] [C] [F]\nEl viene otra vez\n[Bb] [F] [C] [F]\nCon gloria y con poder\n[Bb] [F] [C] [F]\nCon gloria y con poder\n[Bb]\nY viene entre las nubes\n[Dm] [C] [Bb]\nY su iglesia dice: Ven, ven, ven, ven\n[F] [C] [F] [Bb] [Dm] [C] [Bb]\nVen, ven, ven\n\n[VERSO 2]\n[F] [C] [F] [Bb] [F]\nComo anhelo estar, junto a él por la eternidad\n[C] [F] [Bb] [C] [F]\nTodo hay que preparar porque Cristo viene ya\n[C] [F] [Bb]\nVen, ven (oh ven señor Jesús)\n[C] [Bb]\nven, ven\n\n[CORO 2]\n[F]\nÉl viene otra vez\n[C] [F]\n(de que viene, viene y nada lo detiene)\n[Bb] [F]\nCon gloria y con poder\n[C] [F]\n\n[PUENTE (coro 3)]\n(con mucha gloria, con su poder)\n[Bb] [F]\nCon gloria y con poder\n[C] [F]\nY viene entre las nubes (lo veré, lo veré, lo veré, lo veré)\n[Bb] [Dm] [C] [Bb]\nY su iglesia dice: Ven, ven, ven, ven\n\n[CORO 3]\n[F] [C] [F]\nÉl viene otra vez\n[Bb] [F]\nCon gloria y con poder\n[C] [F]\n(con gloria y con poder)\n[Bb] [F]\nCon gloria y con poder\n[C] [F]\nY viene entre las nubes (por su iglesia)\n[Bb] [Dm] [C] [Bb]\nY su iglesia dice: Ven, ven, ven, ven\n[F]\nVen, ven, ven\n\n[PUENTE]\n[Bb] [F] [C] [Dm]\nTodo ojo le verá, muertos resucitarán\n[Bb]\nY su pueblo se unirá en el cielo\n[F] [A] [Dm]\nYa no habrá porque llorar, será un gozo sin final\n[Bb]\nJuntos, cantaremos santo, santo\n[Bb] [F] [C] [Dm]\nTodo ojo le verá, muertos resucitarán\n[Bb]\nY su pueblo se unirá en el cielo\n[F] [A] [Dm]\nYa no habrá porque llorar, será un gozo sin final\n[Bb]\nJuntos, cantaremos santo, santo\n\n[FINAL]\n[F] [C]\nSanto, santo\n[Dm] [C] [Bb]\nJuntos cantaremos santo, santo\n[F] [C]\nSanto, santo\n[Dm] [C] [Bb]\nJuntos cantaremos santo, santo\n[F] [C]\nPor los siglos de los siglos (santo, santo)\n[Dm] [C] [Bb]\nPorque solo él es digno (santo, santo)\n[F] [C]\n\nVamos cántalo con tu vecino (santo, santo)\n[Dm]\nEs que Cristo ha vencido\n\n[CORO FINAL]\n[F]\nÉl viene otra vez\n[C] [F]\n(él viene otra vez)\n[Bb] [F]\nCon gloria y con poder\n[C] [F]\n(con gloria y con poder)\n[Bb] [F]\nCon gloria y con poder\n[C] [F]\nY viene entre las nubes (lo veré, lo veré, lo veré, lo veré)\n[Bb] [Dm] [C] [Bb]\nY su iglesia dice: Ven, ven, ven; ven,\n[F] [C] [F]\nVen, ven, ven\n[Bb] [F] [C] [F]\nY dice ven, ven, ven\n[Bb] [F] [C] [F] [Bb] [Dm] [C] [Bb]\nven, ven, ven\n[F]\nEl viene otra vez"
+  },
+  {
+      title: 'Milagroso (Abres camino)',
+      artist: 'Way Maker',
+      pdfUrl: '',
+      chords: "[Intro]\n[G] [D] [A] [Bm]\n\n[Estrofa]\n[G]Aquí estás, te vemos mo[D]ver, te adora[A]ré, te adora[Bm]ré\n[G]Aquí estás, obrando en [D]mí, te adora[A]ré, te adora[Bm]ré\n\n[Coro]\n[G]Milagroso, abres camino, [D]cumples promesas\nLuz en ti[A]nieblas, mi Dios, así eres [Bm]Tú\n\n[Estrofa 2]\n[G]Aquí estás, sanando mi cora[D]zón, te adora[A]ré, te adora[Bm]ré\n[G]Aquí estás, tocando mi cora[D]zón, te adora[A]ré, te adora[Bm]ré\n\n[Coro]\n[G]Milagroso, abres camino, [D]cumples promesas\nLuz en ti[A]nieblas, mi Dios, así eres [Bm]Tú\n\n[Puente]\n[G]Aunque no pueda ver, estás obrando\n[D]Aunque no pueda ver, estás obrando\n[A]Siempre estás, siempre estás obrando\n[Bm]Siempre estás, siempre estás obrando\n\n[Coro]\n[G]Milagroso, abres camino, [D]cumples promesas\nLuz en ti[A]nieblas, mi Dios, así eres [Bm]Tú\n\n[Final]\n[G] [D] [A] [Bm]"
   }
 ];
 
-export async function resetSongs() {
-  if (localStorage.getItem('is_resetting')) {
-    console.log("Reset already in progress. Skipping.");
-    return;
-  }
+export async function forceResetSongs() {
+  console.log("Forcing database reset...");
   localStorage.setItem('is_resetting', 'true');
   try {
-    console.log("Resetting songs collection...");
-    
-    // 1. Get all documents in the collection
     const snapshot = await getDocs(collection(db, SONGS_COLLECTION));
-    
-    // 2. Delete them using batches (max 500)
     if (snapshot.size > 0) {
         let batch = writeBatch(db);
         let count = 0;
@@ -83,14 +81,51 @@ export async function resetSongs() {
         if (count > 0) {
           await batch.commit();
         }
-        console.log(`Deleted ${snapshot.size} songs.`);
     }
+    for (const song of initialSongs) {
+      await addDoc(collection(db, SONGS_COLLECTION), song);
+    }
+    console.log("Forced reset complete.");
+  } catch (error) {
+    console.error("Error in forceResetSongs:", error);
+    throw error;
+  } finally {
+    localStorage.removeItem('is_resetting');
+  }
+}
+
+export async function resetSongs() {
+  if (localStorage.getItem('is_resetting')) {
+    console.log("Reset already in progress. Skipping.");
+    return;
+  }
+  localStorage.setItem('is_resetting', 'true');
+  try {
+    console.log("Starting full database reset...");
+    
+    // 1. Get all documents in the collection
+    const q = collection(db, SONGS_COLLECTION);
+    const snapshot = await getDocs(q);
+    console.log(`Found ${snapshot.size} documents to delete.`);
+    
+    // 2. Delete them
+    const batch = writeBatch(db);
+    snapshot.docs.forEach((doc) => {
+        batch.delete(doc.ref);
+    });
+    await batch.commit();
+    console.log("Collection cleared.");
     
     // 3. Seed fresh
     console.log("Seeding fresh songs...");
+    console.log(`Initial songs count: ${initialSongs.length}`);
     for (const song of initialSongs) {
       console.log(`Adding song: ${song.title}`);
-      await addDoc(collection(db, SONGS_COLLECTION), song);
+      try {
+        await addDoc(collection(db, SONGS_COLLECTION), song);
+      } catch (err) {
+        console.error(`Error adding song ${song.title}:`, err);
+      }
     }
     console.log("Reset complete.");
   } catch (error) {

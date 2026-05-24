@@ -50,8 +50,8 @@ service cloud.firestore {
       allow write: if true;
     }
 
-    // Songs Collection V3
-    match /songs_v3/{songId} {
+    // Songs Collection V4
+    match /songs_v4/{songId} {
       allow read, list: if true;
       allow write: if true;
     }

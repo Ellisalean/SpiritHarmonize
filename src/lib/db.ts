@@ -59,7 +59,7 @@ export interface Setlist {
   songIds: string[];
 }
 
-const SONGS_COLLECTION = 'songs_v3';
+const SONGS_COLLECTION = 'songs_v4';
 const SETLISTS_COLLECTION = 'setlists';
 
 export async function getSongs(): Promise<Song[]> {

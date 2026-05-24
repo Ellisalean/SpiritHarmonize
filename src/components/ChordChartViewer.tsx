@@ -39,12 +39,13 @@ export default function ChordChartViewer({ title, artist, initialChords, onBack 
   const [transposition, setTransposition] = useState(0);
 
   const renderChords = () => {
-    const parts = initialChords.split(/(\[[A-G][b#]?[a-z0-9/]*\])/g);
+    // Improved regex to better capture chords
+    const parts = initialChords.split(/(\[[A-G][b#]?(?:maj|min|m|dim|aug|sus[0-9]*|[0-9]*)?(?:\/[A-G][b#]?)?\])/g);
     return parts.map((part, index) => {
       if (part.startsWith('[') && part.endsWith(']')) {
         const chord = part.slice(1, -1);
         const transposedChord = transposeChord(chord, transposition);
-        return <span key={index} className="font-bold text-blue-600 bg-blue-50 px-1 rounded">{transposedChord}</span>;
+        return <span key={`${index}-${transposition}`} className="font-bold text-blue-600 bg-blue-50 px-1 rounded">{transposedChord}</span>;
       }
       return part;
     });

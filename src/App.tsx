@@ -18,7 +18,7 @@ import Devotionals from './components/Devotionals';
 import MusicPlayer from './components/MusicPlayer';
 import SplashScreen from './components/SplashScreen';
 import { Song, Setlist, getSongs } from './lib/db';
-import { resetSongs } from './lib/seed';
+import { resetSongs, forceResetSongs } from './lib/seed';
 import { auth } from './lib/firebase';
 import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 
@@ -29,6 +29,7 @@ export default function App() {
   const [currentView, setCurrentView] = useState('menu');
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
   const [activeSetlist, setActiveSetlist] = useState<Setlist | null>(null);
+  const [resetState, setResetState] = useState<'idle' | 'confirming' | 'resetting' | 'done'>('idle');
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -37,11 +38,17 @@ export default function App() {
       initialized.current = true;
       try {
         console.log("App initializing...");
-        await signInAnonymously(auth);
+        try {
+          await signInAnonymously(auth);
+          console.log("Anonymous authentication successful.");
+        } catch (authError) {
+          console.warn("Anonymous sign in failed or is disabled in Firebase console, proceeding anonymously:", authError);
+        }
         const songs = await getSongs();
         if (songs.length === 0) {
             console.log("Database empty, seeding...");
             await resetSongs();
+            console.log("Database seeded successfully.");
         }
         console.log("Initialization complete.");
       } catch (error) {
@@ -140,16 +147,60 @@ export default function App() {
           />
         </div>
         
-        {/* <button 
-            onClick={() => { 
-                if(confirm("¿Estás seguro de resetear la base de datos? Esto borrará todo y recargará la lista original.")) { 
-                    resetSongs().then(() => window.location.reload());
-                } 
-            }}
-            className="w-full mb-4 p-3 bg-red-100 text-red-600 rounded-xl hover:bg-red-200 font-bold"
-        >
-            Resetear Base de Datos
-        </button> */}
+        {resetState === 'idle' && (
+          <button 
+              onClick={() => setResetState('confirming')}
+              className="w-full mb-4 p-3 bg-red-100 text-red-600 rounded-xl hover:bg-red-200 font-bold transition-all text-center"
+          >
+              Resetear Base de Datos
+          </button>
+        )}
+
+        {resetState === 'confirming' && (
+          <div className="w-full mb-4 p-4 bg-red-50 border border-red-200 rounded-2xl flex flex-col gap-3">
+            <p className="text-red-800 text-sm font-bold text-center">
+              ¿Estás seguro de resetear la base de datos? Esto borrará todo y recargará la lista original.
+            </p>
+            <div className="flex gap-2">
+              <button 
+                onClick={async () => {
+                  setResetState('resetting');
+                  try {
+                    await resetSongs();
+                    setResetState('done');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                  } catch (err) {
+                    console.error(err);
+                    setResetState('idle');
+                  }
+                }}
+                className="flex-1 p-2.5 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 transition-colors"
+              >
+                Sí, Resetear
+              </button>
+              <button 
+                onClick={() => setResetState('idle')}
+                className="flex-1 p-2.5 bg-gray-200 text-gray-700 rounded-xl font-bold text-sm hover:bg-gray-300 transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
+
+        {resetState === 'resetting' && (
+          <div className="w-full mb-4 p-3 bg-yellow-100 text-yellow-700 rounded-xl font-bold text-center animate-pulse">
+            Restableciendo canciones... Por favor espera.
+          </div>
+        )}
+
+        {resetState === 'done' && (
+          <div className="w-full mb-4 p-3 bg-green-100 text-green-700 rounded-xl font-bold text-center">
+            ¡Base de datos reseteada exitosamente!
+          </div>
+        )}
 
         <section className="grid grid-cols-2 gap-4 mb-8">
           {menuItems.map((item, index) => (

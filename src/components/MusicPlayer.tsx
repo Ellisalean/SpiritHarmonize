@@ -13,7 +13,7 @@ export default function MusicPlayer({ onBack }: { onBack: () => void }) {
                     <button onClick={onBack} className="p-2 bg-white/20 rounded-full hover:bg-white/30 backdrop-blur-sm transition">
                         <ChevronLeft />
                     </button>
-                    <h1 className="text-xl font-bold">Your Music Hub</h1>
+                    <h1 className="text-xl font-bold">Laboratorio Musical</h1>
                     <div className="w-10"></div>
                 </div>
 
