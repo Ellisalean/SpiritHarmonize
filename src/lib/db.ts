@@ -1,16 +1,4 @@
-import { auth, db } from './firebase';
-import { 
-  collection, 
-  getDocs, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  doc, 
-  getDoc,
-  query,
-  onSnapshot,
-  where
-} from 'firebase/firestore';
+import { supabase } from './supabase';
 
 export enum OperationType {
   CREATE = 'create',
@@ -21,25 +9,19 @@ export enum OperationType {
   WRITE = 'write',
 }
 
-interface FirestoreErrorInfo {
+interface SupabaseErrorInfo {
   error: string;
   operationType: OperationType;
   path: string | null;
-  authInfo: any;
 }
 
-export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
-  const errInfo: FirestoreErrorInfo = {
-    error: error instanceof Error ? error.message : String(error),
-    authInfo: {
-      userId: auth.currentUser?.uid,
-      email: auth.currentUser?.email,
-      emailVerified: auth.currentUser?.emailVerified,
-    },
+export function handleSupabaseError(error: any, operationType: OperationType, table: string | null) {
+  const errInfo: SupabaseErrorInfo = {
+    error: error?.message || String(error),
     operationType,
-    path
+    path: table
   }
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  console.error('Supabase Error: ', JSON.stringify(errInfo));
   throw new Error(JSON.stringify(errInfo));
 }
 
@@ -59,104 +41,105 @@ export interface Setlist {
   songIds: string[];
 }
 
-const SONGS_COLLECTION = 'songs_v4';
-const SETLISTS_COLLECTION = 'setlists';
+const SONGS_TABLE = 'songs_v4';
+const SETLISTS_TABLE = 'setlists';
 
 export async function getSongs(): Promise<Song[]> {
   try {
-    const q = query(collection(db, SONGS_COLLECTION));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Song));
+    const { data, error } = await supabase.from(SONGS_TABLE).select('*');
+    if (error) throw error;
+    return data || [];
   } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, SONGS_COLLECTION);
+    handleSupabaseError(error, OperationType.LIST, SONGS_TABLE);
     return [];
   }
 }
 
 export function subscribeToSongs(callback: (songs: Song[]) => void): () => void {
-  const q = query(collection(db, SONGS_COLLECTION));
-  return onSnapshot(q, (querySnapshot) => {
-    console.log(`Snapshot received, ${querySnapshot.size} documents.`);
-    const songs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Song));
-    console.log("Songs:", songs);
-    callback(songs);
-  }, (error) => {
-    handleFirestoreError(error, OperationType.LIST, SONGS_COLLECTION);
-  });
+  const channel = supabase
+    .channel('songs_v4')
+    .on('postgres_changes', { event: '*', schema: 'public', table: SONGS_TABLE }, (payload) => {
+      console.log('Change received!', payload);
+      getSongs().then(callback);
+    })
+    .subscribe();
+    
+  return () => {
+    supabase.removeChannel(channel);
+  };
 }
 
 export async function addSong(song: Omit<Song, 'id'>, id: string): Promise<string> {
   try {
-    // Check if song already exists
-    const q = query(
-        collection(db, SONGS_COLLECTION), 
-        where("title", "==", song.title), 
-        where("artist", "==", song.artist)
-    );
-    const querySnapshot = await getDocs(q);
-    
-    if (!querySnapshot.empty) {
-        console.log(`Song "${song.title}" by ${song.artist} already exists.`);
-        return querySnapshot.docs[0].id;
+    const { data, error } = await supabase.from(SONGS_TABLE).select('id').eq('title', song.title).eq('artist', song.artist);
+    if (error) throw error;
+    if (data && data.length > 0) {
+        return data[0].id;
     }
 
-    const docRef = await addDoc(collection(db, SONGS_COLLECTION), { ...song, id });
-    return docRef.id;
+    const { data: inserted, error: insertError } = await supabase.from(SONGS_TABLE).insert({ ...song, id }).select('id');
+    if (insertError) throw insertError;
+    return inserted[0].id;
   } catch (error) {
-    handleFirestoreError(error, OperationType.CREATE, SONGS_COLLECTION);
+    handleSupabaseError(error, OperationType.CREATE, SONGS_TABLE);
     return '';
   }
 }
 
 export async function updateSong(id: string, song: Partial<Song>): Promise<void> {
   try {
-    await updateDoc(doc(db, SONGS_COLLECTION, id), song);
+    const { error } = await supabase.from(SONGS_TABLE).update(song).eq('id', id);
+    if (error) throw error;
   } catch (error) {
-    handleFirestoreError(error, OperationType.UPDATE, `${SONGS_COLLECTION}/${id}`);
+    handleSupabaseError(error, OperationType.UPDATE, `${SONGS_TABLE}/${id}`);
   }
 }
 
 export async function deleteSong(id: string): Promise<void> {
   try {
-    await deleteDoc(doc(db, SONGS_COLLECTION, id));
+    const { error } = await supabase.from(SONGS_TABLE).delete().eq('id', id);
+    if (error) throw error;
   } catch (error) {
-    handleFirestoreError(error, OperationType.DELETE, `${SONGS_COLLECTION}/${id}`);
+    handleSupabaseError(error, OperationType.DELETE, `${SONGS_TABLE}/${id}`);
   }
 }
 
 export async function getSetlists(): Promise<Setlist[]> {
   try {
-    const q = query(collection(db, SETLISTS_COLLECTION));
-    const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Setlist));
+    const { data, error } = await supabase.from(SETLISTS_TABLE).select('*');
+    if (error) throw error;
+    return data || [];
   } catch (error) {
-    handleFirestoreError(error, OperationType.LIST, SETLISTS_COLLECTION);
+    handleSupabaseError(error, OperationType.LIST, SETLISTS_TABLE);
     return [];
   }
 }
 
 export async function addSetlist(setlist: Omit<Setlist, 'id'>): Promise<string> {
   try {
-    const docRef = await addDoc(collection(db, SETLISTS_COLLECTION), setlist);
-    return docRef.id;
+    const { data, error } = await supabase.from(SETLISTS_TABLE).insert(setlist).select('id');
+    if (error) throw error;
+    return data[0].id;
   } catch (error) {
-    handleFirestoreError(error, OperationType.CREATE, SETLISTS_COLLECTION);
+    handleSupabaseError(error, OperationType.CREATE, SETLISTS_TABLE);
     return '';
   }
 }
 
 export async function updateSetlist(id: string, setlist: Partial<Setlist>): Promise<void> {
   try {
-    await updateDoc(doc(db, SETLISTS_COLLECTION, id), setlist);
+    const { error } = await supabase.from(SETLISTS_TABLE).update(setlist).eq('id', id);
+    if (error) throw error;
   } catch (error) {
-    handleFirestoreError(error, OperationType.UPDATE, `${SETLISTS_COLLECTION}/${id}`);
+    handleSupabaseError(error, OperationType.UPDATE, `${SETLISTS_TABLE}/${id}`);
   }
 }
 
 export async function deleteSetlist(id: string): Promise<void> {
   try {
-    await deleteDoc(doc(db, SETLISTS_COLLECTION, id));
+    const { error } = await supabase.from(SETLISTS_TABLE).delete().eq('id', id);
+    if (error) throw error;
   } catch (error) {
-    handleFirestoreError(error, OperationType.DELETE, `${SETLISTS_COLLECTION}/${id}`);
+    handleSupabaseError(error, OperationType.DELETE, `${SETLISTS_TABLE}/${id}`);
   }
 }

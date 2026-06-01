@@ -6,6 +6,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { Home, Library, PlusCircle, Heart, User, Search, Bell, Music, Calendar, FileText, BarChart2, Mic, Megaphone, CalendarDays, BookOpen, Play } from 'lucide-react';
+import AdminDashboard from './components/AdminDashboard';
 import WelcomeScreen from './components/WelcomeScreen';
 import SheetMusicList from './components/SheetMusicList';
 import SetlistPlanner from './components/SetlistPlanner';
@@ -17,10 +18,11 @@ import CalendarView from './components/Calendar';
 import Devotionals from './components/Devotionals';
 import MusicPlayer from './components/MusicPlayer';
 import SplashScreen from './components/SplashScreen';
+import AuthForm from './components/AuthForm';
 import { Song, Setlist, getSongs } from './lib/db';
-import { resetSongs, forceResetSongs } from './lib/seed';
-import { GoogleAuthProvider, signInWithRedirect, onAuthStateChanged, User as FirebaseUser, signOut, getRedirectResult } from 'firebase/auth';
-import { auth } from './lib/firebase';
+import { resetSongs } from './lib/seed';
+import { supabase } from './lib/supabase';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
 export default function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -30,25 +32,49 @@ export default function App() {
   const [selectedSong, setSelectedSong] = useState<Song | null>(null);
   const [activeSetlist, setActiveSetlist] = useState<Setlist | null>(null);
   const [resetState, setResetState] = useState<'idle' | 'confirming' | 'resetting' | 'done'>('idle');
-  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [isAdminMode, setIsAdminMode] = useState(false);
   const initialized = useRef(false);
 
+  async function checkUserRole(userId: string) {
+      if (!userId) return;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single();
+        
+      if (!error && data) {
+          setIsAdminMode(data.role === 'admin');
+      } else {
+          setIsAdminMode(false);
+      }
+  }
+
   useEffect(() => {
     console.log("Setting up auth listener...");
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-        console.log("Auth state changed, user:", currentUser ? currentUser.email : "null");
-        setUser(currentUser);
-        if (currentUser && currentUser.email === import.meta.env.VITE_ADMIN_EMAIL) {
-            console.log("User authorized as Admin.");
-            setIsAdminMode(true);
+    
+    // Initial check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+            checkUserRole(session.user.id);
         } else {
-            if (currentUser) console.log("User not authorized as Admin. Email:", currentUser.email, "Expected:", import.meta.env.VITE_ADMIN_EMAIL);
             setIsAdminMode(false);
         }
     });
 
-    return () => unsubscribe();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        console.log("Auth state changed, user:", session?.user?.email ?? "null");
+        setUser(session?.user ?? null);
+        if (session?.user) {
+            checkUserRole(session.user.id);
+        } else {
+            setIsAdminMode(false);
+        }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
@@ -57,7 +83,6 @@ export default function App() {
       initialized.current = true;
       try {
         console.log("App initializing...");
-        await getRedirectResult(auth);
         const songs = await getSongs();
         if (songs.length === 0) {
             console.log("Database empty, seeding...");
@@ -80,6 +105,7 @@ export default function App() {
     { title: 'Anuncios', icon: Megaphone, color: 'text-red-500', action: () => setCurrentView('announcements') },
     { title: 'Calendario', icon: CalendarDays, color: 'text-purple-600', action: () => setCurrentView('calendar') },
     { title: 'Devocionales', icon: BookOpen, color: 'text-indigo-600', action: () => setCurrentView('devotionals') },
+    ...(isAdminMode ? [{ title: 'Admin', icon: User, color: 'text-red-500', action: () => setCurrentView('adminDashboard') }] : []),
   ];
 
   if (!isInitialized) {
@@ -150,6 +176,14 @@ export default function App() {
     if (currentView === 'music') {
         return <MusicPlayer onBack={() => setCurrentView('menu')} />;
     }
+    if (currentView === 'auth') {
+        return <AuthForm onSuccess={() => setCurrentView('menu')} />;
+    }
+    
+    if (currentView === 'adminDashboard') {
+        return <AdminDashboard onBack={() => setCurrentView('menu')} />;
+    }
+    
     // Main Menu
     return (
       <>
@@ -273,20 +307,12 @@ export default function App() {
           <button onClick={() => setCurrentView('music')} className="bg-blue-600 text-white p-3 rounded-full -mt-8 shadow-xl"><Play size={30} /></button>
           <button><Heart size={24} /></button>
           {user ? (
-            <button onClick={() => signOut(auth)} className="text-green-600 flex flex-col items-center">
+            <button onClick={() => supabase.auth.signOut()} className="text-green-600 flex flex-col items-center">
               <User size={24} />
               <span className="text-[10px] font-bold">Log out</span>
             </button>
           ) : (
-            <button onClick={async () => {
-              const provider = new GoogleAuthProvider();
-              try {
-                await signInWithRedirect(auth, provider);
-              } catch(e) {
-                console.error("Sign-in failed:", e);
-                alert("Sign-in failed. Please check the console for details. Ensure your domain is authorized in Firebase console.");
-              }
-            }} className="text-gray-400 flex flex-col items-center">
+            <button onClick={() => setCurrentView('auth')} className="text-gray-400 flex flex-col items-center">
               <User size={24} />
               <span className="text-[10px] font-bold">Log in</span>
             </button>

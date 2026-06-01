@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Trash2, Plus } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths, startOfWeek, endOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { db } from '../lib/firebase';
-import { collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
+// import { db } from '../lib/firebase';
+// import { collection, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
 
 interface CalendarEvent {
     id: string;
@@ -20,16 +20,16 @@ export default function Calendar({ onBack }: { onBack: () => void }) {
     const [newTitle, setNewTitle] = useState('');
 
     useEffect(() => {
-        const fetchEvents = async () => {
-            const querySnapshot = await getDocs(collection(db, 'events'));
-            const fetchedEvents = querySnapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                date: doc.data().date.toDate()
-            } as CalendarEvent));
-            setEvents(fetchedEvents);
-        };
-        fetchEvents();
+        // const fetchEvents = async () => {
+        //     const querySnapshot = await getDocs(collection(db, 'events'));
+        //     const fetchedEvents = querySnapshot.docs.map(doc => ({
+        //         id: doc.id,
+        //         ...doc.data(),
+        //         date: doc.data().date.toDate()
+        //     } as CalendarEvent));
+        //     setEvents(fetchedEvents);
+        // };
+        // fetchEvents();
     }, []);
 
     const addEvent = async () => {
@@ -37,27 +37,27 @@ export default function Calendar({ onBack }: { onBack: () => void }) {
             alert('Por favor, ingresa un título para el evento.');
             return;
         }
-        try {
-            console.log("Saving event:", newTitle, selectedDate);
-            const docRef = await addDoc(collection(db, 'events'), {
-                date: selectedDate,
-                title: newTitle,
-                time: '9:00 am - 10:00 am',
-                type: 'event'
-            });
-            console.log("Event saved with ID:", docRef.id);
-            setEvents([...events, { id: docRef.id, date: selectedDate, title: newTitle, time: '9:00 am - 10:00 am', type: 'event' }]);
-            setNewTitle('');
-            alert('Evento añadido correctamente.');
-        } catch (error) {
-            console.error("Error adding document: ", error);
-            alert('Hubo un error al guardar el evento. Inténtalo de nuevo.');
-        }
+        // try {
+        //     console.log("Saving event:", newTitle, selectedDate);
+        //     const docRef = await addDoc(collection(db, 'events'), {
+        //         date: selectedDate,
+        //         title: newTitle,
+        //         time: '9:00 am - 10:00 am',
+        //         type: 'event'
+        //     });
+        //     console.log("Event saved with ID:", docRef.id);
+        //     setEvents([...events, { id: docRef.id, date: selectedDate, title: newTitle, time: '9:00 am - 10:00 am', type: 'event' }]);
+        //     setNewTitle('');
+        //     alert('Evento añadido correctamente.');
+        // } catch (error) {
+        //     console.error("Error adding document: ", error);
+        //     alert('Hubo un error al guardar el evento. Inténtalo de nuevo.');
+        // }
     };
 
     const deleteEvent = async (id: string) => {
-        await deleteDoc(doc(db, 'events', id));
-        setEvents(events.filter(e => e.id !== id));
+        // await deleteDoc(doc(db, 'events', id));
+        // setEvents(events.filter(e => e.id !== id));
     };
 
     const days = eachDayOfInterval({
